@@ -2,11 +2,9 @@
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "dist",
   "framework": null,
-  "routes": [
-    { "src": "^/$", "dest": "/simple-demo.html" },
-    { "src": "^/demo$", "dest": "/simple-demo.html" }
-  ],
   "rewrites": [
+    { "source": "/", "destination": "/simple-demo.html" },
+    { "source": "/demo", "destination": "/simple-demo.html" },
     {
       "source": "/whip/:path*",
       "destination": "https://demo-whip.substream.dev/:path*"
