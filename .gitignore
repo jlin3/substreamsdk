@@ -58,3 +58,4 @@ docker-compose.override.yml
 
 # OS files
 Thumbs.db
+.vercel

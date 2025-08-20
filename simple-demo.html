@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Substream SDK - Live Streaming Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem 2rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .demo-container {
+      max-width: 1000px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 3rem;
+    }
+
+    .game-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .game-wrapper {
+      position: relative;
+      margin: 0 auto 2rem;
+      display: inline-block;
+    }
+
+    #gameCanvas {
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      max-width: 100%;
+      height: auto;
+    }
+
+    .streaming-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ff0000;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .streaming-badge.active {
+      display: flex;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .controls {
+      margin-top: 2rem;
+    }
+
+    .stream-button {
+      padding: 1rem 3rem;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stream-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .stream-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .stream-button.stop {
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    }
+
+    .viewer-section {
+      display: none;
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 8px;
+    }
+
+    .viewer-section.active {
+      display: block;
+    }
+
+    .viewer-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .viewer-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .viewer-link input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .copy-button {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .open-viewer {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: #48bb78;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .open-viewer:hover {
+      transform: translateY(-2px);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-desc {
+      opacity: 0.8;
+    }
+
+    .code-block {
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+
+    .code-block pre {
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">
+        <span>🎮</span>
+        <span>Substream SDK</span>
+      </div>
+      <div class="nav-links">
+        <a href="/quest-demo.html">Quest VR Demo</a>
+        <a href="https://github.com/jlin3/substreamsdk" target="_blank">GitHub</a>
+        <a href="/QUICKSTART.md">Docs</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="demo-container">
+      <h1 class="title">Stream Your Game in One Line of Code</h1>
+      <p class="subtitle">See how easy it is to add live streaming to any game</p>
+
+      <div class="game-section">
+        <div class="game-wrapper">
+          <canvas id="gameCanvas" width="800" height="450"></canvas>
+          <div class="streaming-badge" id="streamingBadge">
+            <div class="live-dot"></div>
+            <span>LIVE</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="stream-button" id="streamButton" onclick="toggleStream()">
+            🔴 Go Live
+          </button>
+        </div>
+
+        <div class="viewer-section" id="viewerSection">
+          <h3 class="viewer-title">🎉 You're Live! Share this link:</h3>
+          <div class="viewer-link">
+            <input type="text" id="viewerUrl" readonly />
+            <button class="copy-button" onclick="copyLink()">Copy</button>
+          </div>
+          <a href="#" id="viewerButton" class="open-viewer" target="_blank">Open Viewer →</a>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <pre>// That's it! Just one line to start streaming:
+await Substream.init('demo');
+const stream = await Substream.startLive({ source: canvas });</pre>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">1️⃣</div>
+          <h3 class="step-title">Initialize SDK</h3>
+          <p class="step-desc">One line to set up the SDK with your credentials</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">2️⃣</div>
+          <h3 class="step-title">Start Streaming</h3>
+          <p class="step-desc">Pass your game canvas and we handle the rest</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">3️⃣</div>
+          <h3 class="step-title">Share & Watch</h3>
+          <p class="step-desc">Get an instant viewer link to share with anyone</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    // Simple game animation
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let particles = [];
+    let player = { x: 400, y: 225, size: 20, color: '#667eea' };
+    let enemies = [];
+    let score = 0;
+    let gameTime = 0;
+
+    // Initialize particles
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedX: (Math.random() - 0.5) * 2,
+        speedY: (Math.random() - 0.5) * 2,
+        color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`
+      });
+    }
+
+    // Initialize enemies
+    function spawnEnemy() {
+      enemies.push({
+        x: Math.random() * canvas.width,
+        y: -20,
+        size: 15,
+        speed: Math.random() * 2 + 1,
+        color: '#f56565'
+      });
+    }
+
+    // Game loop
+    function gameLoop() {
+      // Clear canvas
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+
+        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.fill();
+      });
+
+      // Move player towards mouse
+      const targetX = mouseX || canvas.width / 2;
+      const targetY = mouseY || canvas.height / 2;
+      player.x += (targetX - player.x) * 0.1;
+      player.y += (targetY - player.y) * 0.1;
+
+      // Draw player
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+      ctx.fillStyle = player.color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Update enemies
+      enemies = enemies.filter(enemy => {
+        enemy.y += enemy.speed;
+        
+        // Draw enemy
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+        ctx.fillStyle = enemy.color;
+        ctx.fill();
+
+        // Check collision
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < player.size + enemy.size) {
+          score += 10;
+          return false; // Remove enemy
+        }
+
+        return enemy.y < canvas.height + 20;
+      });
+
+      // Spawn enemies
+      gameTime++;
+      if (gameTime % 60 === 0) {
+        spawnEnemy();
+      }
+
+      // Draw score
+      ctx.fillStyle = '#fff';
+      ctx.font = '20px Arial';
+      ctx.fillText(`Score: ${score}`, 20, 40);
+
+      // Draw title
+      ctx.font = 'bold 24px Arial';
+      ctx.fillText('Demo Game', canvas.width / 2 - 60, 40);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    let mouseX, mouseY;
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+
+    gameLoop();
+
+    // Streaming logic (simulated)
+    let isStreaming = false;
+    let streamId = null;
+
+    window.toggleStream = async function() {
+      const button = document.getElementById('streamButton');
+      const badge = document.getElementById('streamingBadge');
+      const viewerSection = document.getElementById('viewerSection');
+
+      if (!isStreaming) {
+        // Start streaming
+        button.disabled = true;
+        button.textContent = '⏳ Starting...';
+
+        // Simulate starting stream
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        isStreaming = true;
+        streamId = 'demo-' + Date.now();
+        
+        button.textContent = '⏹️ Stop Streaming';
+        button.classList.add('stop');
+        button.disabled = false;
+        
+        badge.classList.add('active');
+        viewerSection.classList.add('active');
+
+        // Set viewer URL
+        const viewerUrl = `${window.location.origin}/simple-viewer.html?stream=${streamId}`;
+        document.getElementById('viewerUrl').value = viewerUrl;
+        document.getElementById('viewerButton').href = viewerUrl;
+
+      } else {
+        // Stop streaming
+        button.disabled = true;
+        button.textContent = '⏳ Stopping...';
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        isStreaming = false;
+        button.textContent = '🔴 Go Live';
+        button.classList.remove('stop');
+        button.disabled = false;
+        
+        badge.classList.remove('active');
+        viewerSection.classList.remove('active');
+      }
+    };
+
+    window.copyLink = function() {
+      const input = document.getElementById('viewerUrl');
+      input.select();
+      document.execCommand('copy');
+      
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = 'Copied!';
+      setTimeout(() => {
+        button.textContent = originalText;
+      }, 2000);
+    };
+  </script>
+</body>
+</html>
