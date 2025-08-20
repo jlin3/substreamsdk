@@ -128,7 +128,13 @@
     .quest-game {
       width: 100%;
       height: 100%;
-      background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDgwMCA0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMjU0ODhlO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM4N2NlZWI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPHJlY3QgeD0iMCIgeT0iMzAwIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIyOGIyMiIvPgogIDxjaXJjbGUgY3g9IjcwMCIgY3k9IjgwIiBmaWxsPSIjZmZmZjAwIiByPSI0MCIvPgogIDx0ZXh0IHg9IjQwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkdhbWUgVmlldyAzNjDCsDwvdGV4dD4KPC9zdmc+') center/cover;
+      background: #000;
+      position: relative;
+    }
+
+    .vr-canvas {
+      width: 100%;
+      height: 100%;
     }
 
     .permission-dialog {
@@ -319,7 +325,9 @@
         <div class="demo-content">
           <div class="quest-device">
             <div class="quest-screen">
-              <div class="quest-game"></div>
+              <div class="quest-game">
+                <canvas id="vrCanvas" class="vr-canvas"></canvas>
+              </div>
               <div class="permission-dialog" id="permissionDialog">
                 <div class="permission-icon">📺</div>
                 <h3 class="permission-title">Start recording or casting?</h3>
@@ -436,6 +444,202 @@ public class VRStreamController : MonoBehaviour
 
   <script>
     let streaming = false;
+
+    // VR Game Animation
+    const canvas = document.getElementById('vrCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // VR Scene Objects
+    const vrObjects = [];
+    const targets = [];
+    let playerPos = { x: 0, y: 0, z: 0 };
+    let cameraAngle = 0;
+    let score = 0;
+    let gameTime = 0;
+
+    // Initialize VR objects
+    for (let i = 0; i < 20; i++) {
+      vrObjects.push({
+        x: (Math.random() - 0.5) * 1000,
+        y: (Math.random() - 0.5) * 200,
+        z: Math.random() * 500 + 100,
+        size: Math.random() * 20 + 10,
+        color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`,
+        speed: Math.random() * 0.5 + 0.5
+      });
+    }
+
+    // Initialize targets
+    function spawnTarget() {
+      targets.push({
+        x: (Math.random() - 0.5) * 400,
+        y: (Math.random() - 0.5) * 200,
+        z: 600,
+        size: 30,
+        color: '#ff6b6b',
+        hit: false
+      });
+    }
+
+    // 3D to 2D projection
+    function project3D(obj) {
+      const fov = 300;
+      const scale = fov / (fov + obj.z);
+      return {
+        x: canvas.width / 2 + obj.x * scale,
+        y: canvas.height / 2 + obj.y * scale,
+        size: obj.size * scale
+      };
+    }
+
+    // Draw VR scene
+    function drawVRScene() {
+      // Clear with gradient background
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#0a0a1e');
+      gradient.addColorStop(0.5, '#1a1a3e');
+      gradient.addColorStop(1, '#2a2a4e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw grid floor
+      ctx.strokeStyle = 'rgba(102, 126, 234, 0.2)';
+      ctx.lineWidth = 1;
+      for (let i = -10; i <= 10; i++) {
+        const z = 50;
+        const start = project3D({ x: i * 50, y: 100, z: z });
+        const end = project3D({ x: i * 50, y: 100, z: 600 });
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+      }
+
+      for (let i = 1; i <= 10; i++) {
+        const z = i * 60;
+        const start = project3D({ x: -500, y: 100, z: z });
+        const end = project3D({ x: 500, y: 100, z: z });
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+      }
+
+      // Update and draw VR objects
+      vrObjects.forEach(obj => {
+        // Move objects
+        obj.z -= obj.speed;
+        if (obj.z < 10) {
+          obj.z = 600;
+          obj.x = (Math.random() - 0.5) * 1000;
+          obj.y = (Math.random() - 0.5) * 200;
+        }
+
+        // Rotate based on camera
+        const rotatedX = obj.x * Math.cos(cameraAngle) - obj.z * Math.sin(cameraAngle);
+        const rotatedZ = obj.x * Math.sin(cameraAngle) + obj.z * Math.cos(cameraAngle);
+
+        const projected = project3D({ ...obj, x: rotatedX, z: rotatedZ });
+        
+        // Draw object
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, projected.size, 0, Math.PI * 2);
+        ctx.fillStyle = obj.color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.stroke();
+      });
+
+      // Update and draw targets
+      targets.forEach((target, index) => {
+        if (!target.hit) {
+          target.z -= 2;
+          
+          const projected = project3D(target);
+          
+          // Draw target
+          ctx.strokeStyle = target.color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(projected.x, projected.y, projected.size, 0, Math.PI * 2);
+          ctx.stroke();
+          
+          // Draw crosshair on target
+          ctx.beginPath();
+          ctx.moveTo(projected.x - projected.size, projected.y);
+          ctx.lineTo(projected.x + projected.size, projected.y);
+          ctx.moveTo(projected.x, projected.y - projected.size);
+          ctx.lineTo(projected.x, projected.y + projected.size);
+          ctx.stroke();
+        }
+        
+        if (target.z < 10) {
+          targets.splice(index, 1);
+        }
+      });
+
+      // Draw HUD
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText(`Score: ${score}`, 20, 40);
+      
+      // Draw VR view indicator
+      ctx.font = 'bold 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillText('VR Game View', canvas.width / 2, 60);
+      
+      // Draw streaming indicator if active
+      if (streaming) {
+        ctx.fillStyle = '#ff0000';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText('● STREAMING', canvas.width - 20, 40);
+        ctx.textAlign = 'center';
+      }
+      
+      // Draw crosshair
+      ctx.strokeStyle = '#00ff00';
+      ctx.lineWidth = 2;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(centerX - 30, centerY);
+      ctx.lineTo(centerX + 30, centerY);
+      ctx.moveTo(centerX, centerY - 30);
+      ctx.lineTo(centerX, centerY + 30);
+      ctx.stroke();
+      
+      ctx.textAlign = 'left';
+
+      // Update game
+      gameTime++;
+      if (gameTime % 120 === 0) {
+        spawnTarget();
+      }
+
+      // Simulate head movement
+      cameraAngle = Math.sin(gameTime * 0.01) * 0.1;
+
+      requestAnimationFrame(drawVRScene);
+    }
+
+    // Start VR animation
+    drawVRScene();
 
     function showPermission() {
       document.getElementById('permissionDialog').classList.add('show');
