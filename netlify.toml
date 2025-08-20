@@ -1,0 +1,37 @@
+# Netlify deployment configuration
+# For the demo web app
+
+[build]
+  command = "npm install && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirect API calls to mock server for demo
+[[redirects]]
+  from = "/whip/*"
+  to = "https://demo-whip.substream.dev/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://demo-api.substream.dev/:splat"
+  status = 200
+  force = true
+
+# Headers for streaming
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    
+[[headers]]
+  for = "/demo.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Deploy button for README
+# [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/yourusername/substreamsdk)

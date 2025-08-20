@@ -1,0 +1,18 @@
+# LiveKit Ingress Configuration
+api_key: devkey
+api_secret: secret
+ws_url: ws://livekit:7880
+health_port: 8089
+logging:
+  level: info
+
+# Ingress defaults
+defaults:
+  room_name: demo-room
+  participant_identity: demo-publisher
+  participant_name: Demo Stream
+  
+# WHIP specific configuration
+whip:
+  allowed_origins:
+    - "*"

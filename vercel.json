@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/whip/:path*",
+      "destination": "https://demo-whip.substream.dev/:path*"
+    },
+    {
+      "source": "/api/:path*", 
+      "destination": "https://demo-api.substream.dev/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    }
+  ]
+}

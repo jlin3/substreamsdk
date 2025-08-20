@@ -1,0 +1,47 @@
+# Render.com deployment configuration
+# Deploy with one click: https://render.com/deploy
+
+services:
+  # LiveKit Server
+  - type: pserv
+    name: substream-livekit
+    env: docker
+    dockerfilePath: ./deploy/Dockerfile.livekit
+    envVars:
+      - key: LIVEKIT_KEYS
+        value: devkey:secret
+      - key: LIVEKIT_PORT
+        value: 7880
+    
+  # WHIP Ingress
+  - type: pserv
+    name: substream-ingress
+    env: docker
+    dockerfilePath: ./deploy/Dockerfile.ingress
+    envVars:
+      - key: LIVEKIT_HOST
+        fromService:
+          type: pserv
+          name: substream-livekit
+          property: hostport
+      - key: LIVEKIT_API_KEY
+        value: devkey
+      - key: LIVEKIT_API_SECRET
+        value: secret
+
+  # Demo Web App
+  - type: web
+    name: substream-demo
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_WHIP_PUBLISH_URL
+        fromService:
+          type: pserv
+          name: substream-ingress
+          property: hostport
+          
+# One-click deploy button
+# Add this to README:
+# [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yourusername/substreamsdk)

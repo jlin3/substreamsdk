@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Substream SDK Demo</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background: #0b0f17; color: #e6edf3; }
+      header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+      .card { background: #0f1724; border: 1px solid #1e2a3a; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+      button { background: #2563eb; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+      button.secondary { background: #334155; }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+      canvas { width: 640px; height: 360px; background: #111827; display:block; border-radius: 8px; border: 1px solid #1e293b; }
+      .row { display: flex; gap: 12px; align-items: center; }
+      .hint { color: #9ba3af; font-size: 12px; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7l-10 5 10 5 10-5-10-5zm-10 8l10 5 10-5" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2>Substream SDK Demo</h2>
+    </header>
+
+    <div class="card">
+      <div class="row" style="justify-content: space-between;">
+        <div>
+          <div><strong>Canvas</strong> capture target</div>
+          <div class="hint">Animating box gives a moving source</div>
+        </div>
+        <div class="hint mono" id="envInfo"></div>
+      </div>
+      <canvas id="game" width="640" height="360"></canvas>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; gap:12px; flex-wrap: wrap; align-items:center;">
+        <button id="btnLive">Go Live</button>
+        <button id="btnStopLive" class="secondary" disabled>Stop Live</button>
+        <button id="btnVod">Record & Upload</button>
+        <button id="btnStopVod" class="secondary" disabled>Stop & Finalize</button>
+        <span class="hint" id="status"></span>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+  </html>
+
+

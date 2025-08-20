@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Substream SDK - Quick Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0; 
+      padding: 0; 
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      color: #fff;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .logo {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+    
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .demo-grid { grid-template-columns: 1fr; }
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .card h2 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .game-canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: left 0.3s ease;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #6b7280;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-indicator.live {
+      background: #ef4444;
+    }
+    
+    .status-indicator.connected {
+      background: #10b981;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .viewer-section {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .viewer-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    .viewer-link input {
+      flex: 1;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      color: white;
+      font-family: monospace;
+    }
+    
+    .viewer-link button {
+      flex: none;
+      padding: 0.5rem 1rem;
+    }
+    
+    .qr-code {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    
+    .code-snippet {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+    
+    .code-snippet pre {
+      margin: 0;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    
+    .feature-list li {
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feature-list li::before {
+      content: '✓';
+      color: #10b981;
+      font-weight: bold;
+    }
+    
+    .setup-steps {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .setup-steps ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+    
+    .setup-steps li {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">🎮</div>
+      <h1>Substream SDK Demo</h1>
+      <p class="subtitle">Stream your game with one line of code</p>
+    </header>
+
+    <div class="demo-grid">
+      <!-- Live Demo -->
+      <div class="card">
+        <h2>📹 Live Streaming Demo</h2>
+        
+        <canvas id="game" class="game-canvas" width="1280" height="720"></canvas>
+        
+        <div class="status">
+          <span class="status-indicator" id="statusIndicator"></span>
+          <span id="statusText">Ready to stream</span>
+        </div>
+        
+        <div class="controls">
+          <button id="btnStartLive" class="btn-primary">🔴 Go Live</button>
+          <button id="btnStopLive" class="btn-secondary" disabled>Stop Stream</button>
+        </div>
+        
+        <div class="viewer-section" id="viewerSection" style="display: none;">
+          <strong>🎉 You're Live!</strong>
+          <p>Share this link with viewers:</p>
+          <div class="viewer-link">
+            <input type="text" id="viewerUrl" readonly />
+            <button onclick="copyViewerLink()" class="btn-secondary">📋 Copy</button>
+          </div>
+          <div id="qrCode" class="qr-code"></div>
+        </div>
+      </div>
+
+      <!-- Integration Guide -->
+      <div class="card">
+        <h2>🚀 Quick Integration</h2>
+        
+        <h3>Web Games</h3>
+        <div class="code-snippet">
+          <pre>// 1. Install
+npm install @substream/sdk
+
+// 2. Initialize (demo mode)
+import { Substream } from '@substream/sdk'
+await Substream.init('demo')
+
+// 3. Start streaming
+const live = await Substream.startLive({
+  source: { type: 'canvas', canvas: gameCanvas }
+})
+
+// 4. Stop streaming
+await live.stop()</pre>
+        </div>
+
+        <h3>Features</h3>
+        <ul class="feature-list">
+          <li>WebRTC ultra-low latency (&lt;1s)</li>
+          <li>Automatic quality adaptation</li>
+          <li>Works with any Canvas/WebGL game</li>
+          <li>No server setup required</li>
+          <li>Cross-platform viewers</li>
+        </ul>
+
+        <h3>Unity/Quest Games</h3>
+        <div class="code-snippet">
+          <pre>// Drop the SDK prefab into your scene
+// Then in your code:
+
+await Substream.Init(new SubstreamConfig {
+    BaseUrl = "demo"
+});
+
+var live = await Substream.LiveCreate(new LiveOptions {
+    Width = 1920, Height = 1080, Fps = 60
+});
+
+await live.Start();</pre>
+        </div>
+
+        <div class="setup-steps">
+          <strong>Local Setup (Optional)</strong>
+          <ol>
+            <li>Clone the repo: <code>git clone ...</code></li>
+            <li>Run LiveKit: <code>docker compose up</code></li>
+            <li>Start demo: <code>npm run dev</code></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Substream } from './src/sdk/index.ts'
+    import { startGame } from './src/game.ts'
+
+    let liveSession = null;
+    let usingRealLiveKit = false;
+
+    async function init() {
+      // Check if we have streaming credentials
+      const whipUrl = import.meta.env.VITE_WHIP_PUBLISH_URL;
+      
+      if (whipUrl && whipUrl.length > 0) {
+        // Use real streaming infrastructure
+        console.log('🚀 Using cloud streaming infrastructure!');
+        usingRealLiveKit = true;
+        
+        await Substream.init({
+          baseUrl: import.meta.env.VITE_PARENTCONNECT_BASE_URL || 'https://api.parentconnect.example',
+          tokenProvider: async () => ({
+            accessToken: localStorage.getItem('SUBSTREAM_BEARER') || 'demo-token',
+            expiresAt: Date.now() + 3600000
+          }),
+          whipPublishUrl: whipUrl
+        });
+      } else {
+        // Use demo mode
+        await Substream.init('demo');
+      }
+      
+      // Start the demo game
+      const canvas = document.getElementById('game');
+      startGame(canvas);
+      
+      // Set up controls
+      const btnStart = document.getElementById('btnStartLive');
+      const btnStop = document.getElementById('btnStopLive');
+      const statusIndicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+      const viewerSection = document.getElementById('viewerSection');
+      const viewerUrl = document.getElementById('viewerUrl');
+      
+      btnStart.onclick = async () => {
+        try {
+          btnStart.disabled = true;
+          statusText.textContent = 'Connecting...';
+          statusIndicator.className = 'status-indicator';
+          
+          liveSession = await Substream.startLive({
+            source: { 
+              type: 'canvas', 
+              canvas: canvas,
+              fps: 30,
+              withAudio: true 
+            },
+            onStatus: (status) => {
+              if (status.type === 'connected') {
+                if (usingRealLiveKit) {
+                  statusText.textContent = '🔴 LIVE - Streaming Active';
+                  statusIndicator.className = 'status-indicator live';
+                  
+                  // For real streaming, show success
+                  document.getElementById('qrCode').innerHTML = 
+                    `<div style="padding: 1rem; background: white; display: inline-block; border-radius: 8px;">
+                      <div style="color: black; font-size: 0.75rem;">🎉 Real Stream Active!</div>
+                      <div style="color: black; font-size: 0.625rem; margin-top: 0.5rem;">Stream is broadcasting</div>
+                    </div>`;
+                } else {
+                  statusText.textContent = 'Demo Mode - Preview Active';
+                  statusIndicator.className = 'status-indicator live';
+                  
+                  document.getElementById('qrCode').innerHTML = 
+                    `<div style="padding: 1rem; background: white; display: inline-block; border-radius: 8px;">
+                      <div style="color: black; font-size: 0.75rem;">Demo Mode Active</div>
+                      <div style="color: black; font-size: 0.875rem; font-weight: bold; margin-top: 0.5rem;">Local Preview Only</div>
+                      <div style="color: black; font-size: 0.625rem; margin-top: 0.25rem;">Configure credentials for real streaming</div>
+                    </div>`;
+                }
+                
+                btnStop.disabled = false;
+                viewerSection.style.display = 'block';
+                const link = Substream.getViewerLink();
+                viewerUrl.value = link;
+              }
+            },
+            onError: (error) => {
+              console.error('Stream error:', error);
+              statusText.textContent = 'Error: ' + error.message;
+            }
+          });
+          
+        } catch (error) {
+          statusText.textContent = 'Failed to start: ' + error.message;
+          btnStart.disabled = false;
+        }
+      };
+      
+      btnStop.onclick = async () => {
+        try {
+          btnStop.disabled = true;
+          statusText.textContent = 'Stopping...';
+          
+          await liveSession?.stop();
+          
+          statusText.textContent = 'Stream ended';
+          statusIndicator.className = 'status-indicator';
+          btnStart.disabled = false;
+          viewerSection.style.display = 'none';
+          
+        } catch (error) {
+          statusText.textContent = 'Error stopping: ' + error.message;
+        }
+      };
+    }
+
+    window.copyViewerLink = () => {
+      const input = document.getElementById('viewerUrl');
+      input.select();
+      document.execCommand('copy');
+      
+      // Show feedback
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = originalText, 2000);
+    };
+
+    init().catch(console.error);
+  </script>
+</body>
+</html>

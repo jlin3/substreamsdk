@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watch Stream - Parent Connect</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0; 
+      padding: 0; 
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fbbf24;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-dot.live {
+      background: #ef4444;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .video-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 4rem;
+      background: radial-gradient(ellipse at center, #111, #000);
+    }
+    
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+    
+    .placeholder {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .placeholder-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .join-button {
+      background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+    
+    .join-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 210, 255, 0.3);
+    }
+    
+    .join-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .viewer-count {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      max-width: 400px;
+    }
+    
+    .controls {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 0.5rem;
+      border-radius: 2rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .control-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .control-btn.active {
+      background: rgba(59, 130, 246, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span>📺</span>
+      <span>Parent Connect Viewer</span>
+    </div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </header>
+
+  <div class="video-container">
+    <div id="placeholder" class="placeholder">
+      <div class="placeholder-icon">📡</div>
+      <h2>Ready to Watch</h2>
+      <p>Click below to join the stream</p>
+      <button id="joinBtn" class="join-button">Join Stream</button>
+      <div id="errorMsg"></div>
+    </div>
+    <video id="videoElement" style="display: none;" autoplay playsinline></video>
+  </div>
+
+  <div id="viewerCount" class="viewer-count" style="display: none;">
+    <span>👥</span>
+    <span id="viewerNumber">1</span>
+    <span>watching</span>
+  </div>
+
+  <div id="controls" class="controls" style="display: none;">
+    <button class="control-btn" id="muteBtn" title="Toggle Audio">
+      🔊
+    </button>
+    <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+      ⛶
+    </button>
+  </div>
+
+  <script type="module">
+    // Get room from URL params
+    const params = new URLSearchParams(window.location.search);
+    const roomName = params.get('room') || 'demo-room';
+    
+    let room = null;
+    let videoElement = document.getElementById('videoElement');
+    let placeholder = document.getElementById('placeholder');
+    let statusDot = document.getElementById('statusDot');
+    let statusText = document.getElementById('statusText');
+    let errorMsg = document.getElementById('errorMsg');
+    let joinBtn = document.getElementById('joinBtn');
+    let controls = document.getElementById('controls');
+    let muteBtn = document.getElementById('muteBtn');
+    let fullscreenBtn = document.getElementById('fullscreenBtn');
+    let viewerCount = document.getElementById('viewerCount');
+    
+    // Check if we're in demo mode
+    const isDemoMode = roomName.startsWith('demo-');
+    
+    if (isDemoMode) {
+      // Update placeholder for demo mode
+      placeholder.innerHTML = `
+        <div class="placeholder-icon">🎮</div>
+        <h2>Demo Mode</h2>
+        <p>This is a simulated stream viewer</p>
+        <button id="joinBtn" class="join-button">Simulate Connection</button>
+        <div id="errorMsg"></div>
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; max-width: 400px;">
+          <h3 style="margin-top: 0;">To see real streams:</h3>
+          <ol style="text-align: left; margin: 0.5rem 0;">
+            <li>Set up streaming credentials</li>
+            <li>Configure WHIP endpoint</li>
+            <li>Update your .env.local file</li>
+            <li>Restart the demo</li>
+          </ol>
+          <p style="margin-bottom: 0; font-size: 0.875rem;">Contact support for access</p>
+        </div>
+      `;
+      joinBtn = document.getElementById('joinBtn');
+    }
+    
+    // Simple demo viewer - in production, use proper LiveKit SDK
+    async function joinStream() {
+      try {
+        joinBtn.disabled = true;
+        statusText.textContent = 'Joining...';
+        
+        // In a real implementation:
+        // 1. Fetch a viewer token from your backend
+        // 2. Connect to streaming infrastructure
+        // 3. Subscribe to publisher's tracks
+        
+        // For demo, show the actual game canvas
+        setTimeout(() => {
+          statusText.textContent = isDemoMode ? 'Demo Mode - Viewing Local Stream' : 'Connected';
+          statusDot.classList.add('live');
+          placeholder.style.display = 'none';
+          videoElement.style.display = 'block';
+          controls.style.display = 'flex';
+          viewerCount.style.display = 'flex';
+          
+          if (isDemoMode) {
+            // Create a canvas element to show the game
+            const canvas = document.createElement('canvas');
+            canvas.width = 1920;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+            
+            // Import and start the game in the viewer
+            import('./src/game.ts').then(({ startGame }) => {
+              // Start a new instance of the game
+              startGame(canvas);
+              
+              // Convert canvas to video stream
+              const stream = canvas.captureStream(30);
+              videoElement.srcObject = stream;
+              videoElement.play();
+            });
+          } else {
+            // Show placeholder for real streaming
+            videoElement.poster = 'data:image/svg+xml;base64,' + btoa(`
+              <svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+                <rect width="1920" height="1080" fill="#111"/>
+                <text x="50%" y="50%" font-family="system-ui" font-size="48" fill="#666" text-anchor="middle" dominant-baseline="middle">
+                  Waiting for stream...
+                </text>
+              </svg>
+            `);
+          }
+          
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Failed to join:', error);
+        errorMsg.innerHTML = `
+          <div class="error-message">
+            Failed to connect. Make sure the stream is live.
+          </div>
+        `;
+        joinBtn.disabled = false;
+        statusText.textContent = 'Failed';
+      }
+    }
+    
+    // Controls
+    let isMuted = false;
+    muteBtn.onclick = () => {
+      isMuted = !isMuted;
+      videoElement.muted = isMuted;
+      muteBtn.textContent = isMuted ? '🔇' : '🔊';
+      muteBtn.classList.toggle('active', isMuted);
+    };
+    
+    fullscreenBtn.onclick = () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        videoElement.requestFullscreen();
+      }
+    };
+    
+    // Auto-join if coming from a direct link
+    if (params.get('autoplay') === 'true') {
+      joinStream();
+    }
+    
+    joinBtn.onclick = joinStream;
+    
+    // Display room info
+    console.log('Viewing room:', roomName);
+  </script>
+</body>
+</html>
