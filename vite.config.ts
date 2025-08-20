@@ -20,7 +20,8 @@ export default defineConfig({
         main: 'index.html',
         viewer: 'viewer.html',
         demo: 'demo.html',
-        demoViewer: 'demo-viewer.html'
+        demoViewer: 'demo-viewer.html',
+        questDemo: 'quest-demo.html'
       }
     }
   }

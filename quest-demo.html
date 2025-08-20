@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quest VR Streaming Demo - Substream SDK</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .nav a:hover {
+      opacity: 1;
+    }
+
+    .hero {
+      padding: 4rem 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .demo-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+
+    .demo-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .demo-header {
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .demo-header h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-content {
+      padding: 2rem;
+    }
+
+    .quest-device {
+      width: 100%;
+      height: 400px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .quest-screen {
+      position: absolute;
+      inset: 20px;
+      background: #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .quest-game {
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDgwMCA0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMjU0ODhlO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM4N2NlZWI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPHJlY3QgeD0iMCIgeT0iMzAwIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIyOGIyMiIvPgogIDxjaXJjbGUgY3g9IjcwMCIgY3k9IjgwIiBmaWxsPSIjZmZmZjAwIiByPSI0MCIvPgogIDx0ZXh0IHg9IjQwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkdhbWUgVmlldyAzNjDCsDwvdGV4dD4KPC9zdmc+') center/cover;
+    }
+
+    .permission-dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      color: #000;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      max-width: 400px;
+      width: 90%;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .permission-dialog.show {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .permission-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      background: #4285f4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .permission-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .permission-app {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .app-icon {
+      width: 40px;
+      height: 40px;
+      background: #667eea;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .permission-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .permission-buttons button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-deny {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-allow {
+      background: #4285f4;
+      color: #fff;
+    }
+
+    .permission-buttons button:hover {
+      opacity: 0.9;
+    }
+
+    .demo-button {
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+      width: 100%;
+    }
+
+    .demo-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .demo-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .code-sample {
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      overflow-x: auto;
+    }
+
+    .code-sample pre {
+      color: #e2e8f0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <a href="/demo.html">← Back to Web Demo</a>
+      <a href="https://github.com/jlin3/substreamsdk" target="_blank">GitHub</a>
+      <a href="/QUICKSTART.md">Documentation</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Quest VR Streaming Demo</h1>
+    <p>Experience how easy it is to add streaming to your Quest/VR games</p>
+  </section>
+
+  <section class="demo-section">
+    <div class="demo-grid">
+      <!-- Permission Flow Demo -->
+      <div class="demo-card">
+        <div class="demo-header">
+          <h3>📱 Android/Quest Permission Flow</h3>
+          <p>What users see when they start streaming</p>
+        </div>
+        <div class="demo-content">
+          <div class="quest-device">
+            <div class="quest-screen">
+              <div class="quest-game"></div>
+              <div class="permission-dialog" id="permissionDialog">
+                <div class="permission-icon">📺</div>
+                <h3 class="permission-title">Start recording or casting?</h3>
+                <div class="permission-app">
+                  <div class="app-icon">🎮</div>
+                  <div>
+                    <div style="font-weight: 600;">Epic VR Game</div>
+                    <div style="font-size: 0.875rem; color: #666;">will be able to record or cast your screen</div>
+                  </div>
+                </div>
+                <div class="permission-buttons">
+                  <button class="btn-deny" onclick="denyPermission()">Cancel</button>
+                  <button class="btn-allow" onclick="allowPermission()">Start now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="demo-button" id="startBtn" onclick="showPermission()">
+            🎮 Simulate Quest Stream Start
+          </button>
+
+          <div class="status-badge" id="statusBadge" style="display: none;">
+            <div class="status-dot"></div>
+            <span>Streaming Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unity Integration -->
+      <div class="demo-card">
+        <div class="demo-header">
+          <h3>🎯 Unity Integration</h3>
+          <p>Add streaming to your Unity VR game</p>
+        </div>
+        <div class="demo-content">
+          <div class="code-sample">
+            <pre>using SubstreamSDK;
+
+public class VRStreamController : MonoBehaviour
+{
+    private Substream.LiveHandle liveHandle;
+    
+    async void Start()
+    {
+        // Initialize in demo mode
+        await Substream.Init("demo");
+    }
+    
+    public async void StartStreaming()
+    {
+        var config = new Substream.LiveConfig
+        {
+            Width = 1920,
+            Height = 1080,
+            Fps = 30,
+            BitrateKbps = 5000
+        };
+        
+        liveHandle = await Substream.StartLive(config);
+        
+        // Listen for status updates
+        liveHandle.OnStatusChanged += (status) => {
+            Debug.Log($"Stream status: {status}");
+        };
+    }
+    
+    public async void StopStreaming()
+    {
+        await liveHandle?.Stop();
+    }
+}</pre>
+          </div>
+
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Key Features:</h4>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: 0.5rem 0;">✅ One-line initialization</li>
+            <li style="padding: 0.5rem 0;">✅ Automatic permission handling</li>
+            <li style="padding: 0.5rem 0;">✅ Background streaming service</li>
+            <li style="padding: 0.5rem 0;">✅ Hardware-accelerated encoding</li>
+            <li style="padding: 0.5rem 0;">✅ Low latency WebRTC</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="demo-card" style="margin-top: 3rem;">
+      <div class="demo-header">
+        <h3>🔧 How Quest Streaming Works</h3>
+      </div>
+      <div class="demo-content">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+          <div>
+            <h4 style="margin-bottom: 1rem;">1️⃣ Permission Request</h4>
+            <p style="opacity: 0.9;">Android's MediaProjection API shows a system dialog asking for screen recording permission</p>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 1rem;">2️⃣ Screen Capture</h4>
+            <p style="opacity: 0.9;">Once granted, we capture the VR display using hardware-accelerated MediaCodec</p>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 1rem;">3️⃣ Background Service</h4>
+            <p style="opacity: 0.9;">A foreground service ensures streaming continues even when the game is minimized</p>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 1rem;">4️⃣ WebRTC Streaming</h4>
+            <p style="opacity: 0.9;">Video is encoded and sent via WebRTC/WHIP for ultra-low latency viewing</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let streaming = false;
+
+    function showPermission() {
+      document.getElementById('permissionDialog').classList.add('show');
+      document.getElementById('startBtn').disabled = true;
+    }
+
+    function allowPermission() {
+      document.getElementById('permissionDialog').classList.remove('show');
+      document.getElementById('statusBadge').style.display = 'inline-flex';
+      document.getElementById('startBtn').textContent = '⏹️ Stop Streaming';
+      document.getElementById('startBtn').disabled = false;
+      streaming = true;
+      document.getElementById('startBtn').onclick = stopStreaming;
+    }
+
+    function denyPermission() {
+      document.getElementById('permissionDialog').classList.remove('show');
+      document.getElementById('startBtn').disabled = false;
+    }
+
+    function stopStreaming() {
+      document.getElementById('statusBadge').style.display = 'none';
+      document.getElementById('startBtn').textContent = '🎮 Simulate Quest Stream Start';
+      document.getElementById('startBtn').onclick = showPermission;
+      streaming = false;
+    }
+  </script>
+</body>
+</html>
