@@ -19,6 +19,7 @@ namespace SubstreamSDK
         public int Height = 1080;
         public int Fps = 60;
         public int BitrateKbps = 5000;
+        public bool WithAudio = true;
         
         [Header("UI References (Optional)")]
         public Button GoLiveButton;
@@ -105,6 +106,7 @@ namespace SubstreamSDK
                     Height = Height,
                     Fps = Fps,
                     VideoBitrateKbps = BitrateKbps,
+                    WithAudio = WithAudio,
                     MetadataJson = JsonUtility.ToJson(new
                     {
                         game = Application.productName,
@@ -254,6 +256,18 @@ namespace SubstreamSDK
             Height = 1440;
             Fps = 72;
             BitrateKbps = 4000;
+        }
+
+        [ContextMenu("Disable Audio")]
+        public void DisableAudio()
+        {
+            WithAudio = false;
+        }
+
+        [ContextMenu("Enable Audio")]
+        public void EnableAudio()
+        {
+            WithAudio = true;
         }
     }
 }
