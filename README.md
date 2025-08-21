@@ -55,6 +55,7 @@ Or try the [live demo](https://substream-demo.vercel.app) (no installation neede
 ## 📖 Documentation
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get streaming in 5 minutes
+- **[Unity on Meta Quest Guide](./quest/README.md)** - Full setup and integration for Quest
 - **[API Reference](./API.md)** - Full SDK documentation
 - **[Deployment Guide](./DEPLOY.md)** - Production deployment options
 - **[Examples](./examples/)** - Sample integrations for popular game engines
@@ -66,9 +67,9 @@ Or try the [live demo](https://substream-demo.vercel.app) (no installation neede
 │   Your Game │ ──────────────────> │  LiveKit    │
 │   (Canvas)  │                      │   Server    │
 └─────────────┘                      └──────┬──────┘
-                                            │
-┌─────────────┐                             │
-│   Viewers   │ <───────────────────────────┘
+                                           │
+┌─────────────┐                            │
+│   Viewers   │ <──────────────────────────┘
 │  (Browser)  │         WebRTC
 └─────────────┘
 ```
@@ -211,4 +212,4 @@ Built with:
 
 ---
 
-**Ready to add streaming to your game?** Check out the [Quick Start Guide](./QUICKSTART.md) or join our [Discord](https://discord.gg/substream) for help!
+**Ready to add streaming to your game?** Check out the [Quick Start Guide](./QUICKSTART.md), the [Unity on Quest Guide](./quest/README.md), or join our [Discord](https://discord.gg/substream) for help!
