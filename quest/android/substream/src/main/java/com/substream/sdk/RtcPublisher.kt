@@ -32,11 +32,12 @@ class RtcPublisher(
     private var audioTrack: AudioTrack? = null
     private var resourceUrl: String? = null
     private val whip = WhipClient()
+    private var videoSender: RtpSender? = null
 
-    fun start(activity: Activity, width: Int, height: Int, fps: Int, projectionData: Intent) {
+    fun start(activity: Activity, width: Int, height: Int, fps: Int, projectionData: Intent, withAudio: Boolean) {
         setupFactory()
         ensureProjection(activity)
-        startPeer(width, height, fps, projectionData)
+        startPeer(width, height, fps, projectionData, withAudio)
     }
 
     fun stop() {
@@ -73,7 +74,7 @@ class RtcPublisher(
         // In production, launch mpm.createScreenCaptureIntent() and store the result.
     }
 
-    private fun startPeer(width: Int, height: Int, fps: Int, projectionData: Intent) {
+    private fun startPeer(width: Int, height: Int, fps: Int, projectionData: Intent, withAudio: Boolean) {
         val rtcConfig = PeerConnection.RTCConfiguration(emptyList())
         val pc = factory!!.createPeerConnection(rtcConfig, object : PeerConnection.Observer by emptyObserver() {})
         peerConnection = pc
@@ -88,15 +89,15 @@ class RtcPublisher(
         videoCapturer.startCapture(width, height, fps)
 
         videoTrack = factory!!.createVideoTrack("video0", videoSource)
-        pc!!.addTrack(videoTrack)
+        videoSender = pc!!.addTrack(videoTrack)
 
         // Audio: try playback capture (game audio). Fallback: mic source
-        val constraints = MediaConstraints()
-        audioSource = factory!!.createAudioSource(constraints)
-        audioTrack = factory!!.createAudioTrack("audio0", audioSource)
-        pc!!.addTrack(audioTrack)
-        // NOTE: WebRTC SDK handles platform audio sources internally; for full playback-capture,
-        // we'd feed an external AudioRecord into a custom AudioSource. This is a placeholder for MVP.
+        if (withAudio) {
+            val constraints = MediaConstraints()
+            audioSource = factory!!.createAudioSource(constraints)
+            audioTrack = factory!!.createAudioTrack("audio0", audioSource)
+            pc!!.addTrack(audioTrack)
+        }
 
         // Offer/Answer via WHIP
         pc!!.createOffer(object: SdpObserver by emptySdpObserver() {
@@ -112,6 +113,22 @@ class RtcPublisher(
                 }
             }
         }, MediaConstraints())
+    }
+
+    fun adjustQuality(width: Int, height: Int, fps: Int, bitrateKbps: Int) {
+        try {
+            screenCapturer?.changeCaptureFormat(width, height, fps)
+            val sender = videoSender ?: return
+            val params = sender.parameters
+            val encodings = params.encodings
+            if (encodings != null && encodings.isNotEmpty()) {
+                encodings[0].maxBitrateBps = bitrateKbps * 1000
+                params.encodings = encodings
+                sender.parameters = params
+            }
+        } catch (e: Exception) {
+            Log.w("RtcPublisher", "adjustQuality failed: ${e.message}")
+        }
     }
 }
 

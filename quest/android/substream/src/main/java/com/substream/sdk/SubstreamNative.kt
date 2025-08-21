@@ -19,6 +19,7 @@ object SubstreamNative {
     private var baseUrl: String = ""
     private var whipUrl: String = ""
     private var publisher: RtcPublisher? = null
+    private var recorder: VodRecorder? = null
     private var projectionData: Intent? = null
     private var streamConfig: StreamConfig? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -26,13 +27,15 @@ object SubstreamNative {
     // Callbacks for Unity
     private var onStatusCallback: ((String) -> Unit)? = null
     private var onErrorCallback: ((String) -> Unit)? = null
+    private var onVodSavedCallback: ((String) -> Unit)? = null
 
     data class StreamConfig(
         val width: Int,
         val height: Int,
         val fps: Int,
         val videoBitrateKbps: Int,
-        val metadataJson: String
+        val metadataJson: String,
+        val withAudio: Boolean
     )
 
     @JvmStatic
@@ -46,10 +49,10 @@ object SubstreamNative {
     }
 
     @JvmStatic
-    fun startLive(width: Int, height: Int, fps: Int, videoBitrateKbps: Int, metadataJson: String) {
-        Log.i(TAG, "startLive ${width}x${height}@${fps} ${videoBitrateKbps}kbps meta=$metadataJson")
+    fun startLive(width: Int, height: Int, fps: Int, videoBitrateKbps: Int, metadataJson: String, withAudio: Boolean) {
+        Log.i(TAG, "startLive ${width}x${height}@${fps} ${videoBitrateKbps}kbps meta=$metadataJson audio=$withAudio")
         
-        streamConfig = StreamConfig(width, height, fps, videoBitrateKbps, metadataJson)
+        streamConfig = StreamConfig(width, height, fps, videoBitrateKbps, metadataJson, withAudio)
         
         val act = activity ?: run {
             onErrorCallback?.invoke("Activity not initialized")
@@ -66,14 +69,44 @@ object SubstreamNative {
         startStreamingInternal(act)
     }
 
+    @JvmStatic
+    fun startVod(width: Int, height: Int, fps: Int, videoBitrateKbps: Int, withAudio: Boolean, outputHint: String) {
+        val act = activity ?: run {
+            onErrorCallback?.invoke("Activity not initialized")
+            return
+        }
+        if (projectionData == null) {
+            requestProjectionPermission(act)
+            return
+        }
+        scope.launch {
+            try {
+                recorder = VodRecorder(act)
+                recorder?.start(projectionData!!, width, height, fps, videoBitrateKbps, withAudio, outputHint) { path ->
+                    onVodSavedCallback?.invoke(path)
+                }
+            } catch (e: Exception) {
+                onErrorCallback?.invoke("VOD start failed: ${e.message}")
+            }
+        }
+    }
+
+    @JvmStatic
+    fun stopVod(): String? {
+        return try {
+            recorder?.stop().also { recorder = null }
+        } catch (e: Exception) {
+            onErrorCallback?.invoke("VOD stop failed: ${e.message}")
+            null
+        }
+    }
+
     private fun requestProjectionPermission(activity: Activity) {
         try {
-            val projectionManager = activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-            val intent = projectionManager.createScreenCaptureIntent()
-            
-            // For Quest/Android, we need to handle this differently
-            // In Unity, this would trigger the permission dialog
-            activity.startActivityForResult(intent, REQUEST_CODE_PROJECTION)
+            // Use trampoline activity so Unity receives no unexpected onActivityResult
+            val intent = Intent(activity, ProjectionActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            activity.startActivity(intent)
             onStatusCallback?.invoke("requesting_permission")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to request projection", e)
@@ -100,7 +133,7 @@ object SubstreamNative {
                 }
                 
                 streamConfig?.let { config ->
-                    publisher?.start(activity, config.width, config.height, config.fps, projectionData!!)
+                    publisher?.start(activity, config.width, config.height, config.fps, projectionData!!, config.withAudio)
                     onStatusCallback?.invoke("streaming")
                 }
                 
@@ -144,6 +177,13 @@ object SubstreamNative {
     }
 
     @JvmStatic
+    fun setProjectionData(data: Intent) {
+        projectionData = data
+        onStatusCallback?.invoke("permission_granted")
+        activity?.let { startStreamingInternal(it) }
+    }
+
+    @JvmStatic
     fun setStatusCallback(callback: (String) -> Unit) {
         onStatusCallback = callback
     }
@@ -151,6 +191,16 @@ object SubstreamNative {
     @JvmStatic
     fun setErrorCallback(callback: (String) -> Unit) {
         onErrorCallback = callback
+    }
+
+    @JvmStatic
+    fun setVodSavedCallback(callback: (String) -> Unit) {
+        onVodSavedCallback = callback
+    }
+
+    @JvmStatic
+    fun adjustQuality(width: Int, height: Int, fps: Int, videoBitrateKbps: Int) {
+        publisher?.adjustQuality(width, height, fps, videoBitrateKbps)
     }
 
     // Demo mode support

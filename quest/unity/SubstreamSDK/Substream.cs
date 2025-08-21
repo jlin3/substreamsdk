@@ -19,6 +19,18 @@ namespace SubstreamSDK
         public int Fps = 30;
         public int VideoBitrateKbps = 3500;
         public string MetadataJson = "{}";
+        public bool WithAudio = true;
+    }
+
+    [Serializable]
+    public class VodOptions
+    {
+        public int Width = 1280;
+        public int Height = 720;
+        public int Fps = 30;
+        public int VideoBitrateKbps = 3500;
+        public bool WithAudio = true;
+        public string OutputHint = ""; // optional filename hint
     }
 
     public enum StreamStatus
@@ -55,7 +67,7 @@ namespace SubstreamSDK
             {
                 Status = StreamStatus.Starting;
 #if UNITY_ANDROID && !UNITY_EDITOR
-                CallAndroid("startLive", _width, _height, _fps, _bitrate, _metadata);
+                CallAndroid("startLive", _width, _height, _fps, _bitrate, _metadata, _withAudio);
 #else
                 Debug.Log($"[Substream] Start live {_width}x{_height}@{_fps}fps {_bitrate}kbps");
                 await Task.Delay(1000); // Simulate startup
@@ -91,34 +103,158 @@ namespace SubstreamSDK
             }
         }
 
-        internal LiveHandle(int width, int height, int fps, int bitrate, string metadata)
+        internal LiveHandle(int width, int height, int fps, int bitrate, string metadata, bool withAudio)
         {
             _width = width; 
             _height = height; 
             _fps = fps; 
             _bitrate = bitrate; 
             _metadata = metadata;
-            
+            _withAudio = withAudio;
 #if UNITY_ANDROID && !UNITY_EDITOR
-            // Set up callbacks from native
             using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
-            jc.CallStatic("setStatusCallback", new AndroidJavaProxy("kotlin.jvm.functions.Function1") {
-                // Implementation would handle status updates
-            });
+            jc.CallStatic("setStatusCallback", new StatusCallbackProxy(this));
+            jc.CallStatic("setErrorCallback", new ErrorCallbackProxy(this));
 #endif
         }
 
-        private readonly int _width; 
-        private readonly int _height; 
-        private readonly int _fps; 
-        private readonly int _bitrate; 
+        private int _width; 
+        private int _height; 
+        private int _fps; 
+        private int _bitrate; 
         private readonly string _metadata;
+        private readonly bool _withAudio;
+
+        public void UpdateQuality(int width, int height, int fps, int bitrateKbps)
+        {
+            _width = width;
+            _height = height;
+            _fps = fps;
+            _bitrate = bitrateKbps;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            CallAndroid("adjustQuality", width, height, fps, bitrateKbps);
+#else
+            Debug.Log($"[Substream] Adjust quality to {width}x{height}@{fps} {bitrateKbps}kbps");
+#endif
+        }
 
 #if UNITY_ANDROID && !UNITY_EDITOR
         private static void CallAndroid(string method, params object[] args)
         {
             using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
             jc.CallStatic(method, args);
+        }
+
+        private class StatusCallbackProxy : AndroidJavaProxy
+        {
+            private readonly LiveHandle _owner;
+            public StatusCallbackProxy(LiveHandle owner) : base("kotlin.jvm.functions.Function1") { _owner = owner; }
+            public AndroidJavaObject invoke(AndroidJavaObject statusObj)
+            {
+                string status = statusObj?.Call<string>("toString");
+                switch (status)
+                {
+                    case "requesting_permission": _owner.Status = StreamStatus.RequestingPermission; break;
+                    case "permission_granted": _owner.Status = StreamStatus.PermissionGranted; break;
+                    case "starting": _owner.Status = StreamStatus.Starting; break;
+                    case "streaming": _owner.Status = StreamStatus.Streaming; break;
+                    case "stopping": _owner.Status = StreamStatus.Stopping; break;
+                    case "stopped": _owner.Status = StreamStatus.Stopped; break;
+                }
+                return null;
+            }
+        }
+
+        private class ErrorCallbackProxy : AndroidJavaProxy
+        {
+            private readonly LiveHandle _owner;
+            public ErrorCallbackProxy(LiveHandle owner) : base("kotlin.jvm.functions.Function1") { _owner = owner; }
+            public AndroidJavaObject invoke(AndroidJavaObject messageObj)
+            {
+                string message = messageObj?.Call<string>("toString");
+                _owner.Status = StreamStatus.Error;
+                _owner.OnError?.Invoke(message);
+                return null;
+            }
+        }
+#endif
+    }
+
+    public class VodHandle
+    {
+        public event Action<string> OnSaved;
+        public event Action<string> OnError;
+
+        private readonly int _width;
+        private readonly int _height;
+        private readonly int _fps;
+        private readonly int _bitrate;
+        private readonly bool _withAudio;
+        private readonly string _outputHint;
+
+        internal VodHandle(int width, int height, int fps, int bitrate, bool withAudio, string outputHint)
+        {
+            _width = width;
+            _height = height;
+            _fps = fps;
+            _bitrate = bitrate;
+            _withAudio = withAudio;
+            _outputHint = outputHint;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
+            jc.CallStatic("setVodSavedCallback", new VodSavedCallbackProxy(this));
+            jc.CallStatic("setErrorCallback", new VodErrorCallbackProxy(this));
+#endif
+        }
+
+        public async Task Start()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
+            jc.CallStatic("startVod", _width, _height, _fps, _bitrate, _withAudio, _outputHint);
+#else
+            Debug.Log($"[Substream] Start VOD {_width}x{_height}@{_fps} {_bitrate}kbps audio={_withAudio}");
+            await Task.Delay(500);
+#endif
+        }
+
+        public async Task<string> Stop()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
+            string path = jc.CallStatic<string>("stopVod");
+            return path;
+#else
+            await Task.Delay(500);
+            string path = "recording.mp4";
+            OnSaved?.Invoke(path);
+            return path;
+#endif
+        }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private class VodSavedCallbackProxy : AndroidJavaProxy
+        {
+            private readonly VodHandle _owner;
+            public VodSavedCallbackProxy(VodHandle owner) : base("kotlin.jvm.functions.Function1") { _owner = owner; }
+            public AndroidJavaObject invoke(AndroidJavaObject pathObj)
+            {
+                string path = pathObj?.Call<string>("toString");
+                _owner.OnSaved?.Invoke(path);
+                return null;
+            }
+        }
+
+        private class VodErrorCallbackProxy : AndroidJavaProxy
+        {
+            private readonly VodHandle _owner;
+            public VodErrorCallbackProxy(VodHandle owner) : base("kotlin.jvm.functions.Function1") { _owner = owner; }
+            public AndroidJavaObject invoke(AndroidJavaObject messageObj)
+            {
+                string message = messageObj?.Call<string>("toString");
+                _owner.OnError?.Invoke(message);
+                return null;
+            }
         }
 #endif
     }
@@ -179,12 +315,23 @@ namespace SubstreamSDK
                 options.Height, 
                 options.Fps, 
                 options.VideoBitrateKbps, 
-                options.MetadataJson
+                options.MetadataJson,
+                options.WithAudio
             );
             
             return Task.FromResult(handle);
         }
         
+        public static Task<VodHandle> VodCreate(VodOptions options)
+        {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Substream not initialized. Call Init() first.");
+            }
+            var handle = new VodHandle(options.Width, options.Height, options.Fps, options.VideoBitrateKbps, options.WithAudio, options.OutputHint ?? "");
+            return Task.FromResult(handle);
+        }
+
         // Helper method for quick demo setup
         public static async Task<LiveHandle> QuickDemo()
         {

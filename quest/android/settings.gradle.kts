@@ -1,4 +1,4 @@
-rootProject.name = "substream-quest"
+rootProject.name = "substream-sdk"
 include(":substream")
 
 

@@ -19,6 +19,7 @@ namespace SubstreamSDK
         public int Height = 1080;
         public int Fps = 60;
         public int BitrateKbps = 5000;
+        public bool WithAudio = true;
         
         [Header("UI References (Optional)")]
         public Button GoLiveButton;
@@ -27,6 +28,7 @@ namespace SubstreamSDK
         public GameObject StreamingIndicator;
 
         private LiveHandle _live;
+        private VodHandle _vod;
         private bool _isStreaming = false;
 
         async void Start()
@@ -105,6 +107,7 @@ namespace SubstreamSDK
                     Height = Height,
                     Fps = Fps,
                     VideoBitrateKbps = BitrateKbps,
+                    WithAudio = WithAudio,
                     MetadataJson = JsonUtility.ToJson(new
                     {
                         game = Application.productName,
@@ -176,6 +179,33 @@ namespace SubstreamSDK
                 UpdateStatus($"Stop failed: {e.Message}", true);
                 Debug.LogError($"[Substream Demo] Failed to stop stream: {e}");
             }
+        }
+        
+        // Example VOD usage (call from your UI)
+        public async Task StartRecording()
+        {
+            if (_vod != null) return;
+            _vod = await Substream.VodCreate(new VodOptions
+            {
+                Width = Width,
+                Height = Height,
+                Fps = Fps,
+                VideoBitrateKbps = BitrateKbps,
+                WithAudio = WithAudio,
+                OutputHint = Application.productName
+            });
+            _vod.OnSaved += path => UpdateStatus($"Saved recording: {path}");
+            _vod.OnError += err => UpdateStatus($"VOD error: {err}", true);
+            await _vod.Start();
+            UpdateStatus("⏺ Recording...");
+        }
+
+        public async Task StopRecording()
+        {
+            if (_vod == null) return;
+            var path = await _vod.Stop();
+            UpdateStatus($"Saved recording: {path}");
+            _vod = null;
         }
         
         private void OnStatusChanged(StreamStatus status)
@@ -254,6 +284,18 @@ namespace SubstreamSDK
             Height = 1440;
             Fps = 72;
             BitrateKbps = 4000;
+        }
+
+        [ContextMenu("Disable Audio")]
+        public void DisableAudio()
+        {
+            WithAudio = false;
+        }
+
+        [ContextMenu("Enable Audio")]
+        public void EnableAudio()
+        {
+            WithAudio = true;
         }
     }
 }
