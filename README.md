@@ -55,6 +55,8 @@ Or try the [live demo](https://substream-demo.vercel.app) (no installation neede
 ## 📖 Documentation
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get streaming in 5 minutes
+- **[Unity Package Install](./UNITY_PACKAGE_INSTALL.md)** - Unity .unitypackage installation
+- **[Unity Quest Testing](./UNITY_QUEST_TESTING.md)** - Complete Quest/VR testing guide
 - **[Unity on Meta Quest Guide](./quest/README.md)** - Full setup and integration for Quest
 - **[API Reference](./API.md)** - Full SDK documentation
 - **[Deployment Guide](./DEPLOY.md)** - Production deployment options
