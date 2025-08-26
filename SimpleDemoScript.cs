@@ -96,26 +96,18 @@ public class SimpleDemoScript : MonoBehaviour
                 // 3. Go to "Ingress" section
                 // 4. Copy the WHIP URL (looks like: https://url-xxxxxxxxx.whip.livekit.cloud/w)
                 
-                // CHANGE THIS TO YOUR LIVEKIT CLOUD WHIP URL:
-                // For substream-cnzdthyx project, get this from:
-                // https://cloud.livekit.io/projects/substream-cnzdthyx/ingress
-                whipUrl = "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // ← REPLACE WITH YOUR WHIP URL!
+                // Your LiveKit Cloud WHIP URL:
+                whipUrl = "https://substream-cnzdthyx.whip.livekit.cloud/w"; // ✅ READY TO STREAM!
                 
                 // For testing with local LiveKit, use:
                 // whipUrl = "http://localhost:8080/rtc";
             }
             
-            if (string.IsNullOrEmpty(whipUrl) || 
-                whipUrl == "http://localhost:8080/rtc" || 
-                whipUrl == "https://url-xxxxxxxxx.whip.livekit.cloud/w")
+            if (string.IsNullOrEmpty(whipUrl) || whipUrl == "http://localhost:8080/rtc")
             {
-                UpdateStatus("⚠️ LiveKit URL not configured! See instructions.");
-                Debug.LogWarning("[SimpleDemoScript] Please configure your LiveKit Cloud WHIP URL!");
-                Debug.LogWarning("[SimpleDemoScript] 1. Go to https://cloud.livekit.io");
-                Debug.LogWarning("[SimpleDemoScript] 2. Select your project → Ingress");
-                Debug.LogWarning("[SimpleDemoScript] 3. Copy the WHIP URL");
-                Debug.LogWarning("[SimpleDemoScript] 4. Paste it on line 100 of SimpleDemoScript.cs");
-                Debug.LogWarning("[SimpleDemoScript] Or enter it in the Unity Inspector (whipUrlInput field)");
+                UpdateStatus("⚠️ Using local LiveKit URL - make sure Docker is running!");
+                Debug.LogWarning("[SimpleDemoScript] Using localhost - ensure LiveKit is running locally");
+                Debug.LogWarning("[SimpleDemoScript] Or use the configured LiveKit Cloud URL");
             }
             
             config.BaseUrl = "https://api.substream.io"; // Your API endpoint
@@ -288,7 +280,7 @@ public class SimpleDemoScript : MonoBehaviour
             // Determine the viewer URL based on the WHIP URL
             string whipUrl = whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text) 
                 ? whipUrlInput.text 
-                : "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // Your default
+                : "https://substream-cnzdthyx.whip.livekit.cloud/w"; // Your LiveKit Cloud URL
             
             if (whipUrl.Contains("localhost"))
             {

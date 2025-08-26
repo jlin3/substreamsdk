@@ -12,8 +12,14 @@ export LIVEKIT_URL=wss://substream-cnzdthyx.livekit.cloud
 export LIVEKIT_API_KEY=APIbtpHuQYmSvTT
 export LIVEKIT_API_SECRET=RmbpdbNBZVkbAW8yW0K3ekrjwcdqIKNo6OQDwt0211Y
 
-# Check if livekit-cli is installed
-if ! command -v livekit-cli &> /dev/null; then
+# Check if lk (new CLI) or livekit-cli (old CLI) is installed
+if command -v lk &> /dev/null; then
+    CLI_CMD="lk"
+    echo "✅ LiveKit CLI (lk) found"
+elif command -v livekit-cli &> /dev/null; then
+    CLI_CMD="livekit-cli"
+    echo "✅ LiveKit CLI (livekit-cli) found"
+else
     echo "❌ LiveKit CLI not found!"
     echo ""
     echo "Please install it first:"
@@ -23,21 +29,17 @@ if ! command -v livekit-cli &> /dev/null; then
     exit 1
 fi
 
-echo "✅ LiveKit CLI found"
 echo ""
 echo "Creating WHIP ingress..."
 echo ""
 
-# Create WHIP ingress
-livekit-cli create-ingress \
-  --request '{
-    "input_type": 3,
-    "name": "Unity Game Stream",
-    "room_name": "",
-    "participant_identity": "unity-streamer",
-    "participant_name": "Unity Stream",
-    "bypass_transcoding": false
-  }'
+# Create WHIP ingress with proper syntax
+$CLI_CMD ingress create \
+  --input-type whip \
+  --name "Unity Game Stream" \
+  --room-name "" \
+  --participant-identity "unity-streamer" \
+  --participant-name "Unity Stream"
 
 echo ""
 echo "📝 Next Steps:"
