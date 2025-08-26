@@ -1,29 +1,8 @@
 /*
  * Substream SDK - Unity Streaming Script
  * 
- * SETUP INSTRUCTIONS:
- * 
- * 1. START LIVEKIT SERVER:
- *    Option A: Local LiveKit (easiest for testing)
- *    - Open terminal in substreamsdk folder
- *    - Run: docker-compose up -d
- *    - Your WHIP URL will be: http://localhost:8080/rtc
- *    
- *    Option B: LiveKit Cloud (for production)
- *    - Sign up at: https://livekit.io
- *    - Create a project
- *    - Your WHIP URL will be: https://your-project.livekit.cloud/rtc
- * 
- * 2. CONFIGURE THIS SCRIPT:
- *    - Edit line 81 below to set your LiveKit URL
- *    - OR enter the URL in the Unity Inspector (whipUrlInput field)
- * 
- * 3. TEST:
- *    - Press Play in Unity
- *    - Click Start Streaming
- *    - Open the viewer URL shown in the UI
- *    
- * For help, check STREAMING_SETUP.md in the repo
+ * This script is configured and ready to stream!
+ * Just press Play and click "Start Streaming"
  */
 
 using System.Collections;
@@ -41,6 +20,8 @@ public class SimpleDemoScript : MonoBehaviour
     public Button stopButton;
     public Text statusText;
     public Text viewerLinkText;
+    public Button viewerLinkButton; // NEW: Clickable link button
+    public GameObject viewerPanel;  // NEW: Panel to show link prominently
     public InputField whipUrlInput; // Optional - for custom WHIP URL
     
     // Stream Settings
@@ -55,10 +36,11 @@ public class SimpleDemoScript : MonoBehaviour
     private LiveHandle currentStream;
     private bool isStreaming = false;
     private string currentRoomId = "";
+    private string fullViewerUrl = "";
     
     void Start()
     {
-        // Initialize SDK in demo mode on start
+        // Initialize SDK on start
         InitializeSDK();
         
         // Connect button listeners
@@ -68,8 +50,15 @@ public class SimpleDemoScript : MonoBehaviour
         if (stopButton != null)
             stopButton.onClick.AddListener(StopStreaming);
             
+        if (viewerLinkButton != null)
+            viewerLinkButton.onClick.AddListener(OpenViewerLink);
+            
         // Initial UI state
         UpdateUI("Ready to stream", false);
+        
+        // Hide viewer panel initially
+        if (viewerPanel != null)
+            viewerPanel.SetActive(false);
     }
     
     async void InitializeSDK()
@@ -78,49 +67,26 @@ public class SimpleDemoScript : MonoBehaviour
         {
             var config = new SubstreamConfig();
             
-            // Check for environment variables or hardcoded values
-            string whipUrl = "";
+            // Your LiveKit Cloud WHIP URL (already configured!)
+            string whipUrl = "https://substream-cnzdthyx.whip.livekit.cloud/w";
             
-            // Option 1: Use input field if provided
+            // Allow override from input field
             if (whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text))
             {
                 whipUrl = whipUrlInput.text;
             }
-            // Option 2: Use your LiveKit Cloud URL
-            else
-            {
-                // IMPORTANT: Replace with your actual LiveKit Cloud WHIP URL!
-                // Get this from your LiveKit Cloud dashboard:
-                // 1. Go to https://cloud.livekit.io
-                // 2. Select your project
-                // 3. Go to "Ingress" section
-                // 4. Copy the WHIP URL (looks like: https://url-xxxxxxxxx.whip.livekit.cloud/w)
-                
-                // Your LiveKit Cloud WHIP URL:
-                whipUrl = "https://substream-cnzdthyx.whip.livekit.cloud/w"; // ✅ READY TO STREAM!
-                
-                // For testing with local LiveKit, use:
-                // whipUrl = "http://localhost:8080/rtc";
-            }
             
-            if (string.IsNullOrEmpty(whipUrl) || whipUrl == "http://localhost:8080/rtc")
-            {
-                UpdateStatus("⚠️ Using local LiveKit URL - make sure Docker is running!");
-                Debug.LogWarning("[SimpleDemoScript] Using localhost - ensure LiveKit is running locally");
-                Debug.LogWarning("[SimpleDemoScript] Or use the configured LiveKit Cloud URL");
-            }
-            
-            config.BaseUrl = "https://api.substream.io"; // Your API endpoint
+            config.BaseUrl = "https://api.substream.io";
             config.WhipPublishUrl = whipUrl;
             
             await Substream.Init(config);
-            UpdateStatus($"SDK Initialized - WHIP: {whipUrl}");
-            Debug.Log($"[SimpleDemoScript] Initialized with WHIP URL: {whipUrl}");
+            UpdateStatus("SDK Ready - Click Start to begin streaming!");
+            Debug.Log($"[Substream] Initialized with WHIP URL: {whipUrl}");
         }
         catch (System.Exception e)
         {
             UpdateStatus($"Init Error: {e.Message}");
-            Debug.LogError($"[SimpleDemoScript] Failed to initialize: {e}");
+            Debug.LogError($"[Substream] Failed to initialize: {e}");
         }
     }
     
@@ -136,7 +102,7 @@ public class SimpleDemoScript : MonoBehaviour
         {
             UpdateStatus("Starting stream...");
             
-            // Generate room ID first so we can include it in metadata
+            // Generate room ID
             currentRoomId = "unity-stream-" + System.Guid.NewGuid().ToString().Substring(0, 8);
             
             // Create stream options
@@ -152,7 +118,7 @@ public class SimpleDemoScript : MonoBehaviour
                     platform = Application.platform.ToString(),
                     version = Application.version,
                     timestamp = System.DateTime.Now.ToString(),
-                    room = currentRoomId  // Include room ID for LiveKit
+                    room = currentRoomId
                 })
             };
             
@@ -170,7 +136,7 @@ public class SimpleDemoScript : MonoBehaviour
         catch (System.Exception e)
         {
             UpdateStatus($"Start Error: {e.Message}");
-            Debug.LogError($"[SimpleDemoScript] Failed to start stream: {e}");
+            Debug.LogError($"[Substream] Failed to start stream: {e}");
         }
     }
     
@@ -190,49 +156,49 @@ public class SimpleDemoScript : MonoBehaviour
         catch (System.Exception e)
         {
             UpdateStatus($"Stop Error: {e.Message}");
-            Debug.LogError($"[SimpleDemoScript] Failed to stop stream: {e}");
+            Debug.LogError($"[Substream] Failed to stop stream: {e}");
         }
     }
     
     void OnStreamStatusChanged(StreamStatus status)
     {
-        Debug.Log($"[SimpleDemoScript] Stream status: {status}");
+        Debug.Log($"[Substream] Stream status: {status}");
         
         switch (status)
         {
             case StreamStatus.RequestingPermission:
-                UpdateStatus("Requesting permission...");
+                UpdateStatus("📱 Please grant screen capture permission...");
                 break;
                 
             case StreamStatus.PermissionGranted:
-                UpdateStatus("Permission granted!");
+                UpdateStatus("✅ Permission granted!");
                 break;
                 
             case StreamStatus.Starting:
-                UpdateStatus("Starting stream...");
+                UpdateStatus("🔄 Connecting to stream server...");
                 break;
                 
             case StreamStatus.Streaming:
                 isStreaming = true;
-                UpdateStatus("🔴 LIVE - Streaming!");
+                UpdateStatus("🔴 LIVE - You're streaming!");
                 UpdateUI("🔴 LIVE - Streaming!", true);
                 ShowViewerLink();
                 break;
                 
             case StreamStatus.Stopping:
-                UpdateStatus("Stopping stream...");
+                UpdateStatus("⏹️ Stopping stream...");
                 break;
                 
             case StreamStatus.Stopped:
                 isStreaming = false;
-                UpdateStatus("Stream stopped");
+                UpdateStatus("Ready to stream");
                 UpdateUI("Ready to stream", false);
                 HideViewerLink();
                 break;
                 
             case StreamStatus.Error:
                 isStreaming = false;
-                UpdateStatus("Stream error!");
+                UpdateStatus("❌ Stream error!");
                 UpdateUI("Error - Check logs", false);
                 break;
         }
@@ -241,7 +207,7 @@ public class SimpleDemoScript : MonoBehaviour
     void OnStreamError(string error)
     {
         UpdateStatus($"Error: {error}");
-        Debug.LogError($"[SimpleDemoScript] Stream error: {error}");
+        Debug.LogError($"[Substream] Stream error: {error}");
     }
     
     void UpdateStatus(string message)
@@ -249,7 +215,7 @@ public class SimpleDemoScript : MonoBehaviour
         if (statusText != null)
             statusText.text = message;
             
-        Debug.Log($"[SimpleDemoScript] {message}");
+        Debug.Log($"[Substream] {message}");
     }
     
     void UpdateUI(string status, bool streaming)
@@ -266,72 +232,80 @@ public class SimpleDemoScript : MonoBehaviour
     
     void ShowViewerLink()
     {
+        // Build the full viewer URL
+        fullViewerUrl = $"https://cloud.livekit.io/projects/substream-cnzdthyx/rooms/{currentRoomId}";
+        
+        // Update viewer link text
         if (viewerLinkText != null)
         {
-            string viewerUrl = "";
+            viewerLinkText.text = "🔗 Click to View Stream";
+            viewerLinkText.color = Color.cyan;
+            viewerLinkText.fontSize = 20;
+            viewerLinkText.fontStyle = FontStyle.Bold;
+        }
+        
+        // Show viewer panel with prominent display
+        if (viewerPanel != null)
+        {
+            viewerPanel.SetActive(true);
             
-            // Use the room ID that was already generated in StartStreaming
-            if (string.IsNullOrEmpty(currentRoomId))
+            // Add background color if it has an Image component
+            var panelImage = viewerPanel.GetComponent<Image>();
+            if (panelImage != null)
             {
-                Debug.LogError("[SimpleDemoScript] Room ID not set!");
-                return;
-            }
-            
-            // Determine the viewer URL based on the WHIP URL
-            string whipUrl = whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text) 
-                ? whipUrlInput.text 
-                : "https://substream-cnzdthyx.whip.livekit.cloud/w"; // Your LiveKit Cloud URL
-            
-            if (whipUrl.Contains("localhost"))
-            {
-                // Local LiveKit viewer
-                viewerUrl = $"http://localhost:5173/viewer.html?room={currentRoomId}";
-            }
-            else if (whipUrl.Contains("whip.livekit.cloud"))
-            {
-                // LiveKit Cloud - extract the project identifier from WHIP URL
-                // WHIP URL format: https://url-xxxxxxxxx.whip.livekit.cloud/w
-                // Viewer URL format: https://meet.livekit.io/app/your-api-key/room-name
-                
-                // For LiveKit Cloud, users can view the stream at:
-                // 1. LiveKit Cloud dashboard preview
-                // 2. LiveKit Meet (with API key)
-                // 3. Custom viewer app
-                
-                viewerUrl = $"https://meet.livekit.io/\n" +
-                           $"  Room: {currentRoomId}\n" +
-                           $"  Or use LiveKit Cloud dashboard";
-                
-                Debug.Log("[SimpleDemoScript] =====================================");
-                Debug.Log("[SimpleDemoScript] 🎮 STREAM IS LIVE!");
-                Debug.Log($"[SimpleDemoScript] Room: {currentRoomId}");
-                Debug.Log("[SimpleDemoScript] ");
-                Debug.Log("[SimpleDemoScript] 👀 VIEW YOUR STREAM HERE:");
-                Debug.Log("[SimpleDemoScript] https://cloud.livekit.io/projects/substream-cnzdthyx/rooms");
-                Debug.Log("[SimpleDemoScript] → Find your room → Click 'Join'");
-                Debug.Log("[SimpleDemoScript] =====================================");
-            }
-            else
-            {
-                // Custom viewer URL
-                viewerUrl = $"Stream Room: {currentRoomId}";
-            }
-            
-            viewerLinkText.text = $"Viewer: {viewerUrl}";
-            viewerLinkText.gameObject.SetActive(true);
-            
-            // Important: Pass the room name to the streaming metadata
-            if (currentStream != null)
-            {
-                Debug.Log($"[SimpleDemoScript] Streaming to room: {currentRoomId}");
+                panelImage.color = new Color(0, 0.5f, 1f, 0.2f); // Light blue background
             }
         }
+        
+        // Make button prominent
+        if (viewerLinkButton != null)
+        {
+            viewerLinkButton.gameObject.SetActive(true);
+            var buttonImage = viewerLinkButton.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = new Color(0, 0.8f, 1f, 1f); // Bright cyan
+            }
+        }
+        
+        // Log clear instructions
+        Debug.Log("╔═══════════════════════════════════════════════════════════╗");
+        Debug.Log("║                  🎮 STREAM IS LIVE!                       ║");
+        Debug.Log("╠═══════════════════════════════════════════════════════════╣");
+        Debug.Log($"║ Room ID: {currentRoomId}                                ║");
+        Debug.Log("║                                                           ║");
+        Debug.Log("║ 👀 VIEW YOUR STREAM:                                      ║");
+        Debug.Log("║                                                           ║");
+        Debug.Log("║ 1. Click the blue 'View Stream' button in Unity          ║");
+        Debug.Log("║    OR                                                     ║");
+        Debug.Log("║ 2. Open this link in your browser:                       ║");
+        Debug.Log($"║    {fullViewerUrl}");
+        Debug.Log("║                                                           ║");
+        Debug.Log("║ 3. Click 'Join' to watch the stream                      ║");
+        Debug.Log("╚═══════════════════════════════════════════════════════════╝");
+        
+        // Also copy to clipboard automatically
+        GUIUtility.systemCopyBuffer = fullViewerUrl;
+        Debug.Log("📋 Viewer link copied to clipboard!");
     }
     
     void HideViewerLink()
     {
-        if (viewerLinkText != null)
-            viewerLinkText.gameObject.SetActive(false);
+        if (viewerPanel != null)
+            viewerPanel.SetActive(false);
+            
+        if (viewerLinkButton != null)
+            viewerLinkButton.gameObject.SetActive(false);
+    }
+    
+    // Open viewer link in browser
+    public void OpenViewerLink()
+    {
+        if (!string.IsNullOrEmpty(fullViewerUrl))
+        {
+            Application.OpenURL(fullViewerUrl);
+            Debug.Log($"[Substream] Opening viewer: {fullViewerUrl}");
+        }
     }
     
     // Quality adjustment methods (optional)
@@ -340,7 +314,7 @@ public class SimpleDemoScript : MonoBehaviour
         if (currentStream != null && isStreaming)
         {
             currentStream.UpdateQuality(1280, 720, 30, 2000);
-            UpdateStatus("Quality: Low (720p 30fps 2Mbps)");
+            UpdateStatus("Quality: Low (720p)");
         }
     }
     
@@ -349,7 +323,7 @@ public class SimpleDemoScript : MonoBehaviour
         if (currentStream != null && isStreaming)
         {
             currentStream.UpdateQuality(1920, 1080, 30, 3500);
-            UpdateStatus("Quality: Medium (1080p 30fps 3.5Mbps)");
+            UpdateStatus("Quality: Medium (1080p)");
         }
     }
     
@@ -358,7 +332,7 @@ public class SimpleDemoScript : MonoBehaviour
         if (currentStream != null && isStreaming)
         {
             currentStream.UpdateQuality(1920, 1080, 60, 5000);
-            UpdateStatus("Quality: High (1080p 60fps 5Mbps)");
+            UpdateStatus("Quality: High (1080p 60fps)");
         }
     }
     
@@ -374,16 +348,22 @@ public class SimpleDemoScript : MonoBehaviour
     // Helper method for testing in Unity Editor
     void Update()
     {
-        // Press S to start streaming (for testing)
+        // Press S to start streaming
         if (Input.GetKeyDown(KeyCode.S) && !isStreaming)
         {
             StartStreaming();
         }
         
-        // Press X to stop streaming (for testing)
+        // Press X to stop streaming
         if (Input.GetKeyDown(KeyCode.X) && isStreaming)
         {
             StopStreaming();
+        }
+        
+        // Press V to open viewer
+        if (Input.GetKeyDown(KeyCode.V) && isStreaming)
+        {
+            OpenViewerLink();
         }
     }
 }
