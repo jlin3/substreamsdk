@@ -302,11 +302,14 @@ public class SimpleDemoScript : MonoBehaviour
                            $"  Room: {currentRoomId}\n" +
                            $"  Or use LiveKit Cloud dashboard";
                 
-                Debug.Log("[SimpleDemoScript] For LiveKit Cloud viewing options:");
-                Debug.Log($"[SimpleDemoScript] 1. Go to https://cloud.livekit.io");
-                Debug.Log($"[SimpleDemoScript] 2. Select your project → Rooms");
-                Debug.Log($"[SimpleDemoScript] 3. Find room: {currentRoomId}");
-                Debug.Log($"[SimpleDemoScript] 4. Click 'Join' to preview");
+                Debug.Log("[SimpleDemoScript] =====================================");
+                Debug.Log("[SimpleDemoScript] 🎮 STREAM IS LIVE!");
+                Debug.Log($"[SimpleDemoScript] Room: {currentRoomId}");
+                Debug.Log("[SimpleDemoScript] ");
+                Debug.Log("[SimpleDemoScript] 👀 VIEW YOUR STREAM HERE:");
+                Debug.Log("[SimpleDemoScript] https://cloud.livekit.io/projects/substream-cnzdthyx/rooms");
+                Debug.Log("[SimpleDemoScript] → Find your room → Click 'Join'");
+                Debug.Log("[SimpleDemoScript] =====================================");
             }
             else
             {
