@@ -1,0 +1,12 @@
+SUBSTREAM SDK - QUICK START
+
+1. INSTANT STREAMING (Code):
+   SubstreamSDK.StartStreaming();
+
+2. WITH UI (Editor):
+   GameObject → Substream → Create Streaming UI
+
+3. VIEW STREAMS:
+   Substream → Open Viewer Dashboard
+
+That's it! No setup required.
