@@ -97,7 +97,9 @@ public class SimpleDemoScript : MonoBehaviour
                 // 4. Copy the WHIP URL (looks like: https://url-xxxxxxxxx.whip.livekit.cloud/w)
                 
                 // CHANGE THIS TO YOUR LIVEKIT CLOUD WHIP URL:
-                whipUrl = "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // ← REPLACE WITH YOUR URL!
+                // For substream-cnzdthyx project, get this from:
+                // https://cloud.livekit.io/projects/substream-cnzdthyx/ingress
+                whipUrl = "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // ← REPLACE WITH YOUR WHIP URL!
                 
                 // For testing with local LiveKit, use:
                 // whipUrl = "http://localhost:8080/rtc";
