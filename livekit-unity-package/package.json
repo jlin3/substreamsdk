@@ -1,0 +1,21 @@
+{
+  "name": "com.livekit.streaming.demo",
+  "version": "1.0.0",
+  "displayName": "LiveKit Streaming Demo",
+  "description": "Ready-to-use LiveKit streaming for Unity with pre-configured settings",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "dependencies": {
+    "com.livekit.sdk": "https://github.com/livekit/client-sdk-unity.git"
+  },
+  "keywords": [
+    "livekit",
+    "streaming",
+    "webrtc",
+    "quest"
+  ],
+  "author": {
+    "name": "Your Team",
+    "email": "support@yourteam.com"
+  }
+}
