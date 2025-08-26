@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "unity_version": "2021.3",
   "description": "Stream your Unity game in one line of code!",
-  "export_date": "2025-08-22T17:33:59.974619",
+  "export_date": "2025-08-26T00:14:11.532330",
   "contents": [
     "Scripts/Substream.cs - Main SDK interface",
     "Demos/Scripts/DemoController.cs - Example implementation",

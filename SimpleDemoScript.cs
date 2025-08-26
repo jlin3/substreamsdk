@@ -1,3 +1,31 @@
+/*
+ * Substream SDK - Unity Streaming Script
+ * 
+ * SETUP INSTRUCTIONS:
+ * 
+ * 1. START LIVEKIT SERVER:
+ *    Option A: Local LiveKit (easiest for testing)
+ *    - Open terminal in substreamsdk folder
+ *    - Run: docker-compose up -d
+ *    - Your WHIP URL will be: http://localhost:8080/rtc
+ *    
+ *    Option B: LiveKit Cloud (for production)
+ *    - Sign up at: https://livekit.io
+ *    - Create a project
+ *    - Your WHIP URL will be: https://your-project.livekit.cloud/rtc
+ * 
+ * 2. CONFIGURE THIS SCRIPT:
+ *    - Edit line 81 below to set your LiveKit URL
+ *    - OR enter the URL in the Unity Inspector (whipUrlInput field)
+ * 
+ * 3. TEST:
+ *    - Press Play in Unity
+ *    - Click Start Streaming
+ *    - Open the viewer URL shown in the UI
+ *    
+ * For help, check STREAMING_SETUP.md in the repo
+ */
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +54,7 @@ public class SimpleDemoScript : MonoBehaviour
     // Internal state
     private LiveHandle currentStream;
     private bool isStreaming = false;
+    private string currentRoomId = "";
     
     void Start()
     {
@@ -47,22 +76,52 @@ public class SimpleDemoScript : MonoBehaviour
     {
         try
         {
-            // Initialize in demo mode for easy testing
-            var config = new SubstreamConfig
-            {
-                BaseUrl = "demo", // Use "demo" for testing without server
-                WhipPublishUrl = "" // Leave empty for demo mode
-            };
+            var config = new SubstreamConfig();
             
-            // Check if user provided a custom WHIP URL
+            // Check for environment variables or hardcoded values
+            string whipUrl = "";
+            
+            // Option 1: Use input field if provided
             if (whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text))
             {
-                config.BaseUrl = "https://api.substream.io"; // Replace with your API URL
-                config.WhipPublishUrl = whipUrlInput.text;
+                whipUrl = whipUrlInput.text;
+            }
+            // Option 2: Use your LiveKit Cloud URL
+            else
+            {
+                // IMPORTANT: Replace with your actual LiveKit Cloud WHIP URL!
+                // Get this from your LiveKit Cloud dashboard:
+                // 1. Go to https://cloud.livekit.io
+                // 2. Select your project
+                // 3. Go to "Ingress" section
+                // 4. Copy the WHIP URL (looks like: https://url-xxxxxxxxx.whip.livekit.cloud/w)
+                
+                // CHANGE THIS TO YOUR LIVEKIT CLOUD WHIP URL:
+                whipUrl = "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // ← REPLACE WITH YOUR URL!
+                
+                // For testing with local LiveKit, use:
+                // whipUrl = "http://localhost:8080/rtc";
             }
             
+            if (string.IsNullOrEmpty(whipUrl) || 
+                whipUrl == "http://localhost:8080/rtc" || 
+                whipUrl == "https://url-xxxxxxxxx.whip.livekit.cloud/w")
+            {
+                UpdateStatus("⚠️ LiveKit URL not configured! See instructions.");
+                Debug.LogWarning("[SimpleDemoScript] Please configure your LiveKit Cloud WHIP URL!");
+                Debug.LogWarning("[SimpleDemoScript] 1. Go to https://cloud.livekit.io");
+                Debug.LogWarning("[SimpleDemoScript] 2. Select your project → Ingress");
+                Debug.LogWarning("[SimpleDemoScript] 3. Copy the WHIP URL");
+                Debug.LogWarning("[SimpleDemoScript] 4. Paste it on line 100 of SimpleDemoScript.cs");
+                Debug.LogWarning("[SimpleDemoScript] Or enter it in the Unity Inspector (whipUrlInput field)");
+            }
+            
+            config.BaseUrl = "https://api.substream.io"; // Your API endpoint
+            config.WhipPublishUrl = whipUrl;
+            
             await Substream.Init(config);
-            UpdateStatus("SDK Initialized");
+            UpdateStatus($"SDK Initialized - WHIP: {whipUrl}");
+            Debug.Log($"[SimpleDemoScript] Initialized with WHIP URL: {whipUrl}");
         }
         catch (System.Exception e)
         {
@@ -83,6 +142,9 @@ public class SimpleDemoScript : MonoBehaviour
         {
             UpdateStatus("Starting stream...");
             
+            // Generate room ID first so we can include it in metadata
+            currentRoomId = "unity-stream-" + System.Guid.NewGuid().ToString().Substring(0, 8);
+            
             // Create stream options
             var options = new LiveOptions
             {
@@ -95,7 +157,8 @@ public class SimpleDemoScript : MonoBehaviour
                     game = Application.productName,
                     platform = Application.platform.ToString(),
                     version = Application.version,
-                    timestamp = System.DateTime.Now.ToString()
+                    timestamp = System.DateTime.Now.ToString(),
+                    room = currentRoomId  // Include room ID for LiveKit
                 })
             };
             
@@ -211,18 +274,60 @@ public class SimpleDemoScript : MonoBehaviour
     {
         if (viewerLinkText != null)
         {
-            // In demo mode, show demo viewer link
-            string viewerUrl = "https://substreamapp.surge.sh/demo-viewer.html";
+            string viewerUrl = "";
             
-            // If using real WHIP URL, construct proper viewer link
-            if (whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text))
+            // Use the room ID that was already generated in StartStreaming
+            if (string.IsNullOrEmpty(currentRoomId))
             {
-                // You would construct your actual viewer URL here
-                viewerUrl = "https://yourviewer.com/watch?stream=xxx";
+                Debug.LogError("[SimpleDemoScript] Room ID not set!");
+                return;
+            }
+            
+            // Determine the viewer URL based on the WHIP URL
+            string whipUrl = whipUrlInput != null && !string.IsNullOrEmpty(whipUrlInput.text) 
+                ? whipUrlInput.text 
+                : "https://url-xxxxxxxxx.whip.livekit.cloud/w"; // Your default
+            
+            if (whipUrl.Contains("localhost"))
+            {
+                // Local LiveKit viewer
+                viewerUrl = $"http://localhost:5173/viewer.html?room={currentRoomId}";
+            }
+            else if (whipUrl.Contains("whip.livekit.cloud"))
+            {
+                // LiveKit Cloud - extract the project identifier from WHIP URL
+                // WHIP URL format: https://url-xxxxxxxxx.whip.livekit.cloud/w
+                // Viewer URL format: https://meet.livekit.io/app/your-api-key/room-name
+                
+                // For LiveKit Cloud, users can view the stream at:
+                // 1. LiveKit Cloud dashboard preview
+                // 2. LiveKit Meet (with API key)
+                // 3. Custom viewer app
+                
+                viewerUrl = $"https://meet.livekit.io/\n" +
+                           $"  Room: {currentRoomId}\n" +
+                           $"  Or use LiveKit Cloud dashboard";
+                
+                Debug.Log("[SimpleDemoScript] For LiveKit Cloud viewing options:");
+                Debug.Log($"[SimpleDemoScript] 1. Go to https://cloud.livekit.io");
+                Debug.Log($"[SimpleDemoScript] 2. Select your project → Rooms");
+                Debug.Log($"[SimpleDemoScript] 3. Find room: {currentRoomId}");
+                Debug.Log($"[SimpleDemoScript] 4. Click 'Join' to preview");
+            }
+            else
+            {
+                // Custom viewer URL
+                viewerUrl = $"Stream Room: {currentRoomId}";
             }
             
             viewerLinkText.text = $"Viewer: {viewerUrl}";
             viewerLinkText.gameObject.SetActive(true);
+            
+            // Important: Pass the room name to the streaming metadata
+            if (currentStream != null)
+            {
+                Debug.Log($"[SimpleDemoScript] Streaming to room: {currentRoomId}");
+            }
         }
     }
     
