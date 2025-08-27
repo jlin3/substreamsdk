@@ -182,9 +182,9 @@ public class SubstreamComplete : MonoBehaviour
         statusText.text = "🔴 LIVE - Streaming!";
         statusText.color = Color.red;
         
-        // Show viewer info
-        string viewerUrl = $"https://cloud.livekit.io/projects/substream-cnzdthyx/rooms/{roomId}";
-        viewerText.text = "📺 CLICK TO VIEW:\n" + viewerUrl;
+        // Show viewer info - Using LiveKit Meet (public viewer)
+        string viewerUrl = $"https://meet.livekit.io";
+        viewerText.text = "📺 VIEW YOUR STREAM:\n1. Click here to open viewer\n2. Enter room: " + roomId;
         
         // Make viewer text clickable
         Button viewerButton = viewerText.gameObject.AddComponent<Button>();
@@ -197,8 +197,11 @@ public class SubstreamComplete : MonoBehaviour
         Debug.Log($"║ Room: {roomId}                              ║");
         Debug.Log("║                                                   ║");
         Debug.Log("║ 👀 TO VIEW YOUR STREAM:                           ║");
-        Debug.Log($"║ 1. Go to: {viewerUrl}");
-        Debug.Log("║ 2. Click 'Join' button                            ║");
+        Debug.Log("║ 1. Go to: https://meet.livekit.io                 ║");
+        Debug.Log("║ 2. Connect to Server:                             ║");
+        Debug.Log("║    wss://substream-cnzdthyx.livekit.cloud         ║");
+        Debug.Log($"║ 3. Room Name: {roomId}                     ║");
+        Debug.Log("║ 4. Your Name: viewer (or anything)                ║");
         Debug.Log("║                                                   ║");
         Debug.Log("║ Or click the blue text in Unity!                  ║");
         Debug.Log("╚═══════════════════════════════════════════════════╝");
