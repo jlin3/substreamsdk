@@ -2,7 +2,17 @@
 
 Stream your Unity games to the web with just ONE file!
 
-## 🚀 Quick Start (60 seconds)
+## 🎮 Two Ways to Use
+
+### Option 1: Simple One-File (60 seconds)
+Best for: Quick testing, minimal setup, adding to existing games
+
+### Option 2: Test Scene with Game Content (Better Demo!)
+Best for: Showing streaming capabilities, testing with actual content, demos
+
+---
+
+## 🚀 Option 1: Quick Start (60 seconds)
 
 ### Step 1: Download
 Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs)
@@ -20,6 +30,41 @@ Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/mai
 2. Click the green **START STREAMING** button
 3. Click the blue viewer link that appears
 4. You're live! 🎉
+
+---
+
+## 🎬 Option 2: Test Scene Demo (Shows Actual Game Content!)
+
+This option includes animated content that viewers can see changing in real-time!
+
+### Step 1: Download Both Files
+1. Download [`test-scene.unitypackage`](https://github.com/jlin3/substreamsdk/blob/main/test-scene.unitypackage)
+2. Download [`SubstreamTestScene.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamTestScene.cs)
+
+### Step 2: Import Test Scene
+1. Open Unity
+2. Assets → Import Package → Custom Package
+3. Select `test-scene.unitypackage`
+4. Import All
+
+### Step 3: Add Streaming Script
+1. Drag `SubstreamTestScene.cs` into your Assets folder
+2. Open the imported test scene
+3. Find the UI Canvas in Hierarchy
+4. Add Component → Substream Test Scene
+
+### Step 4: See It In Action!
+1. Press Play ▶️
+2. Watch the cube rotate and particles emit
+3. Click **START STREAMING**
+4. The score will start increasing (viewers see this!)
+5. Click the viewer link to watch the live stream
+
+### What Viewers Will See:
+- 🎲 Rotating 3D cube
+- ✨ Particle effects when streaming
+- 📊 Live score updates
+- 🎮 Actual game content!
 
 ## 🎮 Features
 
@@ -86,6 +131,11 @@ Edit these in `SubstreamComplete.cs`:
 
 ## 🆘 Troubleshooting
 
+**Button not clicking?**
+- The script now auto-creates an EventSystem
+- If still not working: GameObject → UI → Event System
+- Make sure you're clicking in Game view, not Scene view
+
 **Can't see the button?**
 - Make sure you're in Game view
 - Check that the script is on an active GameObject
@@ -93,6 +143,10 @@ Edit these in `SubstreamComplete.cs`:
 **Stream not working?**
 - Check internet connection
 - Try refreshing the viewer page
+
+**Which option should I use?**
+- Option 1: For quick integration into your existing game
+- Option 2: To see streaming with actual game content
 
 ## 📄 License
 
