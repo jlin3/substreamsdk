@@ -1,217 +1,102 @@
-# 🎮 Substream SDK - Stream Your Game in One Line of Code
+# Substream SDK - One-File Unity Streaming
 
-[![Demo](https://img.shields.io/badge/Live%20Demo-Try%20Now-blue)](http://localhost:5173/demo.html)
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/substreamsdk)
-[![Discord](https://img.shields.io/discord/1234567890?label=Discord&logo=discord)](https://discord.gg/substream)
+Stream your Unity games to the web with just ONE file!
 
-Add live streaming to your game in minutes! Substream SDK handles all the complexity of WebRTC, encoding, and infrastructure so you can focus on your game.
+## 🚀 Quick Start (60 seconds)
 
-## ✨ Features
+### Step 1: Download
+Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs)
 
-- **🚀 One-line integration** - Start streaming with just `await Substream.init('demo')`
-- **🌐 Multi-platform** - Web, Unity, Quest/Android native support
-- **⚡ Ultra-low latency** - Sub-second delay with WebRTC/WHIP
-- **🎮 Game-optimized** - Hardware encoding, background capture, Quest VR support
-- **📺 Instant viewing** - Share a link, viewers join immediately
-- **🔒 Production-ready** - Authentication, metadata, analytics hooks
+### Step 2: Add to Unity
+1. Open your Unity project
+2. Drag `SubstreamComplete.cs` into your Project window
+3. Add it to any GameObject (or create an empty one)
 
-## 🎯 Quick Demo (30 seconds)
+### Step 3: Stream!
+1. Press Play ▶️
+2. Click the green **START STREAMING** button
+3. Click the blue viewer link that appears
+4. You're live! 🎉
 
-### Web Game
-```javascript
-import { Substream } from '@substream/sdk'
+## 🎮 Features
 
-// That's it! Your canvas is now streamable
-await Substream.init('demo')
-const live = await Substream.startLive({
-  source: { type: 'canvas', canvas: gameCanvas }
-})
-```
+- **Zero Configuration** - Works immediately
+- **Auto UI Creation** - Creates streaming interface automatically
+- **One-Click Streaming** - Just press the button
+- **Clickable Viewer Links** - Opens stream in browser
+- **Quest Compatible** - Works on Meta Quest
+- **Keyboard Shortcuts** - S to start, X to stop
 
-### Unity/Quest Game
+## 📱 Quest/Android Support
+
+Same steps! The script handles Quest permissions automatically:
+1. Build for Android
+2. Deploy to Quest
+3. Run and click START STREAMING
+4. Grant screen capture permission
+5. Stream your VR gameplay!
+
+## 🛠️ How It Works
+
+`SubstreamComplete.cs` contains everything:
+- WebRTC streaming setup
+- UI creation
+- LiveKit integration
+- Viewer link generation
+- Permission handling
+
+No dependencies, no setup, no configuration files!
+
+## 📺 Viewing Streams
+
+When you start streaming:
+1. A viewer link appears in Unity
+2. Click it to open LiveKit dashboard
+3. Click "Join" to watch
+4. Share the link with others!
+
+## 🎯 For Developers
+
+### Integration (literally 2 lines):
 ```csharp
-using SubstreamSDK;
-
-// Add to any GameObject
-await Substream.Init(new SubstreamConfig { BaseUrl = "demo" });
-var live = await Substream.QuickDemo();
-await live.Start();
+// Add to any GameObject:
+gameObject.AddComponent<SubstreamComplete>();
 ```
 
-## 🏃‍♂️ Try It Now
+### Customization:
+Edit these in `SubstreamComplete.cs`:
+- UI colors and layout
+- Streaming quality (1080p/30fps default)
+- Button text and styling
 
-```bash
-# Clone and run the demo
-git clone https://github.com/yourusername/substreamsdk
-cd substreamsdk
-npm install
-npm run demo
-
-# Open http://localhost:5173/demo.html
+### API Usage:
+```csharp
+// The script handles everything internally
+// Just let your players click the button!
 ```
 
-Or try the [live demo](https://substream-demo.vercel.app) (no installation needed!)
+## 📋 Requirements
 
-## 📖 Documentation
+- Unity 2019.4 or newer
+- Internet connection
+- That's it!
 
-- **[Quick Start Guide](./QUICKSTART.md)** - Get streaming in 5 minutes
-- **[Unity Package Install](./UNITY_PACKAGE_INSTALL.md)** - Unity .unitypackage installation
-- **[Unity Quest Testing](./UNITY_QUEST_TESTING.md)** - Complete Quest/VR testing guide
-- **[Unity on Meta Quest Guide](./quest/README.md)** - Full setup and integration for Quest
-- **[API Reference](./API.md)** - Full SDK documentation
-- **[Deployment Guide](./DEPLOY.md)** - Production deployment options
-- **[Examples](./examples/)** - Sample integrations for popular game engines
+## 🆘 Troubleshooting
 
-## 🏗️ Architecture
+**Can't see the button?**
+- Make sure you're in Game view
+- Check that the script is on an active GameObject
 
-```
-┌─────────────┐     WebRTC/WHIP      ┌─────────────┐
-│   Your Game │ ──────────────────> │  LiveKit    │
-│   (Canvas)  │                      │   Server    │
-└─────────────┘                      └──────┬──────┘
-                                           │
-┌─────────────┐                            │
-│   Viewers   │ <──────────────────────────┘
-│  (Browser)  │         WebRTC
-└─────────────┘
-```
-
-## 🛠️ SDK Components
-
-### Web SDK (`src/sdk/`)
-- **Pure TypeScript** - No framework dependencies
-- **Modular design** - Tree-shakeable, ~15KB gzipped
-- **Demo mode** - No server required for testing
-
-### Android/Quest Native (`quest/android/`)
-- **MediaProjection API** - System-level screen capture
-- **Hardware encoding** - H.264 via MediaCodec
-- **Background streaming** - Continues with notification
-
-### Unity Integration (`quest/unity/`)
-- **Async/await API** - Modern C# patterns
-- **Editor testing** - Works in Unity Editor
-- **VR optimized** - Quest 2/3/Pro specific settings
-
-## 🎮 Supported Platforms
-
-| Platform | Capture Method | Min Version | Status |
-|----------|---------------|-------------|---------|
-| Chrome/Edge | Canvas/Display | 90+ | ✅ Stable |
-| Firefox | Canvas/Display | 88+ | ✅ Stable |
-| Safari | Canvas only | 15+ | ✅ Stable |
-| Quest Browser | MediaProjection | Quest OS 50+ | ✅ Stable |
-| Unity | Platform-specific | 2020.3+ | ✅ Stable |
-| Android | MediaProjection | API 29+ | ✅ Stable |
-| iOS | - | - | 🚧 Coming Soon |
-
-## 🔧 Configuration Options
-
-### Stream Quality Presets
-```javascript
-// Competitive (1080p60, 5Mbps)
-await Substream.startLive({
-  source: { type: 'canvas', canvas: gameCanvas, fps: 60 },
-  quality: 'competitive'
-})
-
-// Balanced (720p30, 2.5Mbps)  
-await Substream.startLive({
-  source: { type: 'canvas', canvas: gameCanvas, fps: 30 },
-  quality: 'balanced'
-})
-
-// Mobile (480p30, 1Mbps)
-await Substream.startLive({
-  source: { type: 'canvas', canvas: gameCanvas, fps: 30 },
-  quality: 'mobile'
-})
-```
-
-### Advanced Options
-```javascript
-const live = await Substream.startLive({
-  source: { 
-    type: 'canvas', 
-    canvas: gameCanvas,
-    fps: 60,
-    withAudio: true  // Include microphone
-  },
-  metadata: {
-    gameId: 'my-awesome-game',
-    userId: currentUser.id,
-    level: currentLevel,
-    score: playerScore
-  },
-  onStatus: (status) => {
-    console.log('Stream status:', status)
-  },
-  onError: (error) => {
-    console.error('Stream error:', error)
-  }
-})
-```
-
-## 🚀 Production Deployment
-
-### Option 1: Managed Infrastructure
-Use [LiveKit Cloud](https://livekit.cloud) for a fully managed solution:
-- Global edge network
-- Automatic scaling
-- 99.95% uptime SLA
-
-### Option 2: Self-Hosted
-Deploy your own infrastructure:
-```bash
-# Using our Docker Compose setup
-docker compose -f docker-compose.prod.yml up -d
-
-# Or deploy to Kubernetes
-kubectl apply -f deploy/k8s/
-```
-
-### Option 3: Hybrid
-Use managed WHIP ingress with your own application servers for maximum flexibility.
-
-## 📊 Performance
-
-| Metric | Web | Quest Native |
-|--------|-----|--------------|
-| Latency | <500ms | <300ms |
-| CPU Usage | 5-10% | 3-5% |
-| Memory | ~50MB | ~30MB |
-| Bandwidth | Adaptive | Adaptive |
-
-## 🤝 Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-### Development Setup
-```bash
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Build all packages
-npm run build
-
-# Start dev server
-npm run dev
-```
+**Stream not working?**
+- Check internet connection
+- Try refreshing the viewer page
 
 ## 📄 License
 
-MIT License - see [LICENSE](./LICENSE)
-
-## 🙏 Acknowledgments
-
-Built with:
-- [LiveKit](https://livekit.io) - WebRTC SFU
-- [WebRTC](https://webrtc.org) - Real-time communication
-- [Vite](https://vitejs.dev) - Build tooling
+MIT License - Use freely in your games!
 
 ---
 
-**Ready to add streaming to your game?** Check out the [Quick Start Guide](./QUICKSTART.md), the [Unity on Quest Guide](./quest/README.md), or join our [Discord](https://discord.gg/substream) for help!
+**One file. Zero setup. Instant streaming.** 🚀
+
+[Download SubstreamComplete.cs](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs) and start streaming in 60 seconds!
