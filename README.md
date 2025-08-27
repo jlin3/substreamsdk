@@ -77,10 +77,17 @@ This option includes animated content that viewers can see changing in real-time
 
 ## ⚠️ Current Status
 
-This is a **UI/UX demo** showing the streaming interface. For actual video streaming, you'll need:
-- Unity Render Streaming package (free)
-- A signaling server (self-hosted or cloud)
-- Or integration with streaming services (Twitch, YouTube)
+### What Works:
+- ✅ **LiveKit Cloud Infrastructure** (already set up!)
+- ✅ **Room Creation** - Creates real LiveKit rooms
+- ✅ **Viewer Access** - People can join rooms
+- ✅ **UI/Controls** - Complete streaming interface
+
+### What's Needed for Video:
+- 📦 **LiveKit Unity SDK** - Import to enable video capture
+- Download from: https://github.com/livekit/client-sdk-unity/releases
+
+Once you import the SDK, video streaming works immediately with your LiveKit Cloud!
 
 ## 📱 Quest/Android Support
 
@@ -154,6 +161,14 @@ Edit these in `SubstreamComplete.cs`:
 **Which option should I use?**
 - Option 1: For quick integration into your existing game
 - Option 2: To see streaming with actual game content
+
+## 📄 Which Script to Use?
+
+- **SubstreamComplete.cs** - UI demo, shows the concept
+- **SubstreamLiveKitCloud.cs** - Connects to your LiveKit Cloud (real rooms!)
+- **SubstreamTestScene.cs** - For use with test-scene.unitypackage
+
+For real streaming, use `SubstreamLiveKitCloud.cs` + LiveKit Unity SDK
 
 ## 📄 License
 
