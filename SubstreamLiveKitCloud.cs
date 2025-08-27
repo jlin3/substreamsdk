@@ -191,13 +191,12 @@ public class SubstreamLiveKitCloud : MonoBehaviour
         statusText.text = "🔴 LIVE - Room created!";
         statusText.color = Color.red;
         
-        // Show viewer instructions
+        // Show viewer instructions with better formatting
         viewerText.text = $"TO VIEW YOUR STREAM:\n" +
-                         $"1. Go to: https://meet.livekit.io\n" +
-                         $"2. Click 'Join Custom'\n" +
-                         $"3. URL: {LIVEKIT_URL}\n" +
-                         $"4. Room: {roomName}\n" +
-                         $"5. Any participant name";
+                         $"1. Go to: meet.livekit.io\n" +
+                         $"2. Join Custom → URL: {LIVEKIT_URL}\n" +
+                         $"3. Room: {roomName} (click to copy)\n" +
+                         $"4. Name: viewer";
         
         // Make viewer area clickable
         if (viewerText.GetComponent<Button>() == null)
@@ -234,16 +233,41 @@ public class SubstreamLiveKitCloud : MonoBehaviour
         var roomType = Type.GetType("LiveKit.Room, LiveKit");
         if (roomType != null)
         {
-            Debug.Log("[LiveKit] SDK detected! Add camera publishing code here.");
-            // This is where you'd actually connect and publish video
-            // room = new Room();
-            // await room.Connect(LIVEKIT_URL, accessToken);
-            // await room.LocalParticipant.SetCameraEnabled(true);
+            Debug.Log("[LiveKit] SDK detected! Attempting to connect and publish video...");
+            StartCoroutine(ConnectAndPublishVideo());
         }
         else
         {
             Debug.Log("[LiveKit] SDK not found. Room created but no video. Import LiveKit Unity SDK to enable video.");
+            Debug.Log("[LiveKit] Download from: https://github.com/livekit/client-sdk-unity/releases");
         }
+    }
+    
+    IEnumerator ConnectAndPublishVideo()
+    {
+        // This will only work if LiveKit SDK is imported
+        #if LIVEKIT_SDK_AVAILABLE
+        try
+        {
+            var room = new LiveKit.Room();
+            yield return room.Connect(LIVEKIT_URL, accessToken);
+            
+            Debug.Log("[LiveKit] Connected to room! Enabling camera...");
+            
+            // Enable camera - this captures Unity's camera
+            yield return room.LocalParticipant.SetCameraEnabled(true);
+            
+            statusText.text = "🔴 LIVE - Video streaming!";
+            Debug.Log("[LiveKit] ✅ Video streaming active! Viewers can see your Unity game!");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[LiveKit] Failed to start video: {e.Message}");
+        }
+        #else
+        Debug.Log("[LiveKit] Define LIVEKIT_SDK_AVAILABLE in Player Settings → Scripting Define Symbols after importing SDK");
+        yield return null;
+        #endif
     }
     
     IEnumerator GenerateToken(string room, string identity, System.Action<string> callback)
