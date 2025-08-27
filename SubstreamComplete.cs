@@ -4,6 +4,10 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 /// <summary>
 /// SUBSTREAM COMPLETE - One file streaming solution!
 /// 
@@ -12,6 +16,16 @@ using System.Threading.Tasks;
 /// 2. Press Play and click the button!
 /// 
 /// That's it! No configuration needed.
+/// 
+/// KEYBOARD SHORTCUTS:
+/// - S: Start streaming
+/// - X: Stop streaming  
+/// - V: Open viewer (when streaming)
+/// 
+/// ✅ Works automatically with ANY Input System configuration:
+///    - Legacy Input Manager
+///    - Input System Package
+///    - Both
 /// </summary>
 public class SubstreamComplete : MonoBehaviour
 {
@@ -205,12 +219,39 @@ public class SubstreamComplete : MonoBehaviour
         Debug.Log("[Substream] Streaming stopped");
     }
     
-    // Keyboard shortcuts
+    // Keyboard shortcuts - works with both old and new Input System!
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S) && !isStreaming)
+        bool sPressed = false;
+        bool xPressed = false;
+        bool vPressed = false;
+        
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+        // New Input System only
+        if (Keyboard.current != null)
+        {
+            sPressed = Keyboard.current[Key.S].wasPressedThisFrame;
+            xPressed = Keyboard.current[Key.X].wasPressedThisFrame;
+            vPressed = Keyboard.current[Key.V].wasPressedThisFrame;
+        }
+#else
+        // Legacy Input System (or Both mode)
+        sPressed = Input.GetKeyDown(KeyCode.S);
+        xPressed = Input.GetKeyDown(KeyCode.X);
+        vPressed = Input.GetKeyDown(KeyCode.V);
+#endif
+        
+        // Handle input
+        if (sPressed && !isStreaming)
             StartStreaming();
-        else if (Input.GetKeyDown(KeyCode.X) && isStreaming)
+        else if (xPressed && isStreaming)
             StopStreaming();
+        else if (vPressed && isStreaming)
+        {
+            // Open viewer URL
+            string viewerUrl = $"https://cloud.livekit.io/projects/substream-cnzdthyx/rooms/{roomId}";
+            Application.OpenURL(viewerUrl);
+            Debug.Log($"[Substream] Opening viewer: {viewerUrl}");
+        }
     }
 }
