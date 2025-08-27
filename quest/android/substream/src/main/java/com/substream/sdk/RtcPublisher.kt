@@ -123,7 +123,6 @@ class RtcPublisher(
             val encodings = params.encodings
             if (encodings != null && encodings.isNotEmpty()) {
                 encodings[0].maxBitrateBps = bitrateKbps * 1000
-                params.encodings = encodings
                 sender.parameters = params
             }
         } catch (e: Exception) {
