@@ -80,14 +80,20 @@ This option includes animated content that viewers can see changing in real-time
 ### What Works:
 - ✅ **LiveKit Cloud Infrastructure** (already set up!)
 - ✅ **Room Creation** - Creates real LiveKit rooms
-- ✅ **Viewer Access** - People can join rooms
+- ✅ **One-Click Viewer Access** - Direct link to watch
 - ✅ **UI/Controls** - Complete streaming interface
 
-### What's Needed for Video:
-- 📦 **LiveKit Unity SDK** - Import to enable video capture
-- Download from: https://github.com/livekit/client-sdk-unity/releases
+### Current Limitation:
+- ❌ **No video capture yet** - Rooms work but no video stream
+- Viewers can join but will see a black screen
+- This demonstrates the infrastructure, not actual streaming
 
-Once you import the SDK, video streaming works immediately with your LiveKit Cloud!
+### For Real Video Streaming:
+Video capture from Unity requires implementing:
+- Camera render capture
+- Video encoding pipeline  
+- WebRTC track publishing
+- Or use Unity Render Streaming / OBS
 
 ## 📱 Quest/Android Support
 

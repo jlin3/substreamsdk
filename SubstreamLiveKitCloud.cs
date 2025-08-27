@@ -191,21 +191,21 @@ public class SubstreamLiveKitCloud : MonoBehaviour
         statusText.text = "🔴 LIVE - Room created!";
         statusText.color = Color.red;
         
-        // Show viewer instructions with better formatting
-        viewerText.text = $"TO VIEW YOUR STREAM:\n" +
-                         $"1. Go to: meet.livekit.io\n" +
-                         $"2. Join Custom → URL: {LIVEKIT_URL}\n" +
-                         $"3. Room: {roomName} (click to copy)\n" +
-                         $"4. Name: viewer";
+        // Create direct viewer link
+        string encodedUrl = System.Uri.EscapeDataString(LIVEKIT_URL);
+        string viewerUrl = $"https://meet.livekit.io/custom?liveKitUrl={encodedUrl}&roomName={roomName}&participantName=viewer&connect=true";
         
-        // Make viewer area clickable
+        viewerText.text = "📺 CLICK HERE TO VIEW STREAM";
+        viewerText.fontSize = 18;
+        viewerText.fontStyle = FontStyle.Bold;
+        
+        // Make it a big clickable button
         if (viewerText.GetComponent<Button>() == null)
         {
             viewerButton = viewerText.gameObject.AddComponent<Button>();
             viewerButton.onClick.AddListener(() => {
-                Application.OpenURL("https://meet.livekit.io");
-                GUIUtility.systemCopyBuffer = roomName;
-                Debug.Log($"Room name copied: {roomName}");
+                Application.OpenURL(viewerUrl);
+                Debug.Log($"Opening viewer: {viewerUrl}");
             });
         }
         
