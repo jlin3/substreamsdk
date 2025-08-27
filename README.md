@@ -1,6 +1,6 @@
-# Substream SDK - One-File Unity Streaming
+# Substream SDK - Easy Unity Streaming Demo
 
-Stream your Unity games to the web with just ONE file!
+Stream your Unity games with minimal setup!
 
 ## 🎮 Two Ways to Use
 
@@ -68,12 +68,19 @@ This option includes animated content that viewers can see changing in real-time
 
 ## 🎮 Features
 
-- **Zero Configuration** - Works immediately
+- **Zero Configuration** - Works immediately  
 - **Auto UI Creation** - Creates streaming interface automatically
-- **One-Click Streaming** - Just press the button
-- **Clickable Viewer Links** - Opens stream in browser
+- **One-Click Interface** - Simple streaming controls
+- **Demo Flow** - Shows how streaming would work
 - **Quest Compatible** - Works on Meta Quest
 - **Keyboard Shortcuts** - S to start, X to stop
+
+## ⚠️ Current Status
+
+This is a **UI/UX demo** showing the streaming interface. For actual video streaming, you'll need:
+- Unity Render Streaming package (free)
+- A signaling server (self-hosted or cloud)
+- Or integration with streaming services (Twitch, YouTube)
 
 ## 📱 Quest/Android Support
 
