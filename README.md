@@ -9,8 +9,11 @@ Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/mai
 
 ### Step 2: Add to Unity
 1. Open your Unity project
-2. Drag `SubstreamComplete.cs` into your Project window
-3. Add it to any GameObject (or create an empty one)
+2. Drag `SubstreamComplete.cs` into your Project window (Assets folder)
+3. In the Hierarchy window, right-click → Create Empty
+4. Select the new GameObject
+5. In the Inspector, click "Add Component"
+6. Search for "Substream Complete" and add it
 
 ### Step 3: Stream!
 1. Press Play ▶️

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
@@ -57,6 +58,14 @@ public class SubstreamComplete : MonoBehaviour
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasGO.AddComponent<CanvasScaler>();
             canvasGO.AddComponent<GraphicRaycaster>();
+        }
+        
+        // Create EventSystem (required for UI interaction!)
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystemGO = new GameObject("EventSystem");
+            eventSystemGO.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemGO.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
         }
         
         // Create Panel
