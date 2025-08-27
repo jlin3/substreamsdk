@@ -39,7 +39,7 @@ This option includes animated content that viewers can see changing in real-time
 
 ### Step 1: Download Both Files
 1. Download [`test-scene.unitypackage`](https://github.com/jlin3/substreamsdk/blob/main/test-scene.unitypackage)
-2. Download [`SubstreamTestScene.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamTestScene.cs)
+2. Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs)
 
 ### Step 2: Import Test Scene
 1. Open Unity
@@ -48,10 +48,10 @@ This option includes animated content that viewers can see changing in real-time
 4. Import All
 
 ### Step 3: Add Streaming Script
-1. Drag `SubstreamTestScene.cs` into your Assets folder
+1. Drag `SubstreamComplete.cs` into your Assets folder (not SubstreamTestScene.cs)
 2. Open the imported test scene
-3. Find the UI Canvas in Hierarchy
-4. Add Component → Substream Test Scene
+3. Select any GameObject (or create an empty one)
+4. Add Component → Substream Complete
 
 ### Step 4: See It In Action!
 1. Press Play ▶️
