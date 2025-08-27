@@ -116,10 +116,15 @@ public class SubstreamBundled : MonoBehaviour
         {
             statusText.text = "⚠️ LiveKit SDK not found";
             statusText.color = Color.yellow;
-            instructionsText.text = "Room creation will work, but no video.\nTo enable video:\n" +
-                                   "1. Download LiveKit Unity SDK\n" +
-                                   "2. Import into project\n" +
-                                   "3. Restart this scene";
+            
+#if UNITY_EDITOR
+            instructionsText.text = "To enable video streaming:\n" +
+                                   "Menu: Substream → Install LiveKit SDK\n" +
+                                   "(One-click installation!)";
+#else
+            instructionsText.text = "Room creation will work, but no video.\n" +
+                                   "Build with LiveKit SDK for video support.";
+#endif
         }
     }
     
