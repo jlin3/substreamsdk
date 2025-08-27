@@ -170,11 +170,12 @@ Edit these in `SubstreamComplete.cs`:
 
 ## 📄 Which Script to Use?
 
-- **SubstreamComplete.cs** - UI demo, shows the concept
-- **SubstreamLiveKitCloud.cs** - Connects to your LiveKit Cloud (real rooms!)
-- **SubstreamTestScene.cs** - For use with test-scene.unitypackage
+- **SubstreamBundled.cs** ⭐ - RECOMMENDED: Complete solution with JWT tokens
+- **SubstreamComplete.cs** - Basic UI demo
+- **SubstreamLiveKitCloud.cs** - LiveKit connection (needs token generation)
+- **WorkingStreamSolution.cs** - Screen share approach (works immediately)
 
-For real streaming, use `SubstreamLiveKitCloud.cs` + LiveKit Unity SDK
+For production: Use `SubstreamBundled.cs` - it includes everything!
 
 ## 📄 License
 
