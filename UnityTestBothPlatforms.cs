@@ -104,3 +104,4 @@ public class UnityTestBothPlatforms : MonoBehaviour
         }
     }
 }
+

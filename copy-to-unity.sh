@@ -35,3 +35,4 @@ echo "1. Open your project"
 echo "2. Add DemoController to a GameObject"
 echo "3. Configure LiveKit URLs"
 echo "4. Build for Quest!"
+
