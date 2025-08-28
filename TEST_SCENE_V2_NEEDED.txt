@@ -1,0 +1,25 @@
+TEST SCENE V2 - ACTION NEEDED
+=============================
+
+The old test-scene.unitypackage has been archived because it contains
+conflicting scripts (Substream.cs, DemoController.cs).
+
+TO CREATE test-scene-v2.unitypackage:
+
+1. In Unity, import the old package from:
+   archived-scripts/test-scene-old.unitypackage
+
+2. DELETE these files:
+   - Assets/SubstreamSDK/Scripts/Substream.cs
+   - Assets/SubstreamSDK/Demos/Scripts/DemoController.cs
+
+3. Keep only the visual assets:
+   - Test scene
+   - Cube, particles, materials
+   - UI elements
+
+4. Export as test-scene-v2.unitypackage
+
+5. Place in root directory
+
+This will give us a clean test scene without script conflicts!

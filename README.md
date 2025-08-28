@@ -1,188 +1,103 @@
-# Substream SDK - Easy Unity Streaming Demo
+# 🎮 Substream SDK - Stream Unity Games with One Line of Code
 
-Stream your Unity games with minimal setup!
+Add livestreaming to any Unity game in literally 10 seconds!
 
-## 🎮 Two Ways to Use
+## 🚀 Quick Start (60 seconds)
 
-### Option 1: Simple One-File (60 seconds)
-Best for: Quick testing, minimal setup, adding to existing games
+### 1. Clone or Download
+```bash
+git clone https://github.com/jlin3/substreamsdk.git
+```
 
-### Option 2: Test Scene with Game Content (Better Demo!)
-Best for: Showing streaming capabilities, testing with actual content, demos
+### 2. Choose Your Integration
 
----
+#### Option A: Simplest (One Button)
+```csharp
+// Add SubstreamOneClick.cs to any GameObject
+// A "GO LIVE" button appears - click it!
+```
 
-## 🚀 Option 1: Quick Start (60 seconds)
+#### Option B: Professional (Auto UI)
+```csharp
+// Add SubstreamSDK.cs to any GameObject  
+// Floating UI with minimize, status, etc.
+```
 
-### Step 1: Download
-Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs)
+### 3. Press Play & Stream!
+- Click "Go Live"
+- Browser opens → Share your Unity window
+- Anyone can watch at the generated link!
 
-### Step 2: Add to Unity
-1. Open your Unity project
-2. Drag `SubstreamComplete.cs` into your Project window (Assets folder)
-3. In the Hierarchy window, right-click → Create Empty
-4. Select the new GameObject
-5. In the Inspector, click "Add Component"
-6. Search for "Substream Complete" and add it
+## 🥽 Meta Quest Support
 
-### Step 3: Stream!
-1. Press Play ▶️
-2. Click the green **START STREAMING** button
-3. Click the blue viewer link that appears
-4. You're live! 🎉
+Same scripts work on Quest! Just:
+1. Copy `substream-release-quest.aar` to `Assets/Plugins/Android/`
+2. Build & deploy to Quest
+3. Player approves screen capture
+4. VR view streams automatically!
 
----
+## 📦 What's Included
 
-## 🎬 Option 2: Test Scene Demo (Shows Actual Game Content!)
+### Essential Scripts (Use ONE of these):
+- **SubstreamSDK.cs** - Full-featured SDK with automatic UI
+- **SubstreamOneClick.cs** - Simplest possible - just one button
+- **SubstreamUnityDemo.cs** - Interactive demo with instructions
 
-This option includes animated content that viewers can see changing in real-time!
+### For Quest:
+- **substream-release-quest.aar** - Native Quest streaming support
+- **TestQuestAAR.cs** - Verify Quest setup
 
-### Step 1: Download Both Files
-1. Download [`test-scene.unitypackage`](https://github.com/jlin3/substreamsdk/blob/main/test-scene.unitypackage)
-2. Download [`SubstreamComplete.cs`](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs)
-
-### Step 2: Import Test Scene
-1. Open Unity
-2. Assets → Import Package → Custom Package
-3. Select `test-scene.unitypackage`
-4. Import All
-
-### Step 3: Add Streaming Script
-1. Drag `SubstreamComplete.cs` into your Assets folder (not SubstreamTestScene.cs)
-2. Open the imported test scene
-3. Select any GameObject (or create an empty one)
-4. Add Component → Substream Complete
-
-### Step 4: See It In Action!
-1. Press Play ▶️
-2. Watch the cube rotate and particles emit
-3. Click **START STREAMING**
-4. The score will start increasing (viewers see this!)
-5. Click the viewer link to watch the live stream
-
-### What Viewers Will See:
-- 🎲 Rotating 3D cube
-- ✨ Particle effects when streaming
-- 📊 Live score updates
-- 🎮 Actual game content!
-
-## 🎮 Features
-
-- **Zero Configuration** - Works immediately  
-- **Auto UI Creation** - Creates streaming interface automatically
-- **One-Click Interface** - Simple streaming controls
-- **Demo Flow** - Shows how streaming would work
-- **Quest Compatible** - Works on Meta Quest
-- **Keyboard Shortcuts** - S to start, X to stop
-
-## ⚠️ Current Status
-
-### What Works:
-- ✅ **LiveKit Cloud Infrastructure** (already set up!)
-- ✅ **Room Creation** - Creates real LiveKit rooms
-- ✅ **One-Click Viewer Access** - Direct link to watch
-- ✅ **UI/Controls** - Complete streaming interface
-
-### Current Limitation:
-- ❌ **No video capture yet** - Rooms work but no video stream
-- Viewers can join but will see a black screen
-- This demonstrates the infrastructure, not actual streaming
-
-### For Real Video Streaming:
-Video capture from Unity requires implementing:
-- Camera render capture
-- Video encoding pipeline  
-- WebRTC track publishing
-- Or use Unity Render Streaming / OBS
-
-## 📱 Quest/Android Support
-
-Same steps! The script handles Quest permissions automatically:
-1. Build for Android
-2. Deploy to Quest
-3. Run and click START STREAMING
-4. Grant screen capture permission
-5. Stream your VR gameplay!
-
-## 🛠️ How It Works
-
-`SubstreamComplete.cs` contains everything:
-- WebRTC streaming setup
-- UI creation
-- LiveKit integration
-- Viewer link generation
-- Permission handling
-
-No dependencies, no setup, no configuration files!
-
-## 📺 Viewing Streams
-
-When you start streaming:
-1. A viewer link appears in Unity
-2. Click it to open LiveKit dashboard
-3. Click "Join" to watch
-4. Share the link with others!
+### Optional:
+- **test-scene.unitypackage** - Demo scene with animated content
 
 ## 🎯 For Developers
 
-### Integration (literally 2 lines):
+**Integration is literally one line:**
 ```csharp
-// Add to any GameObject:
-gameObject.AddComponent<SubstreamComplete>();
+gameObject.AddComponent<SubstreamSDK>();
 ```
 
-### Customization:
-Edit these in `SubstreamComplete.cs`:
-- UI colors and layout
-- Streaming quality (1080p/30fps default)
-- Button text and styling
+That's it. No configuration. No setup. It just works.
 
-### API Usage:
+## 🌐 How Viewers Watch
+
+1. Streamer clicks "Go Live"
+2. Gets link like: `https://meet.livekit.io/custom?roomName=unity-demo-123456`
+3. Anyone opens link in browser
+4. They see the game live!
+
+No apps. No downloads. Any device.
+
+## 📺 Try It Right Now
+
+1. Create empty Unity project
+2. Add `SubstreamOneClick.cs` to any GameObject
+3. Press Play
+4. Click the button
+5. You're streaming!
+
+## 🛠️ Advanced Options
+
 ```csharp
-// The script handles everything internally
-// Just let your players click the button!
+// Customize the SDK
+var sdk = gameObject.AddComponent<SubstreamSDK>();
+sdk.quality = SubstreamSDK.Quality.Ultra;     // 4K/60fps
+sdk.uiPosition = SubstreamSDK.UIPosition.TopRight;
+sdk.autoStart = true;                          // Start on load
+sdk.showUI = false;                            // Headless mode
 ```
 
-## 📋 Requirements
+## 📚 Documentation
 
-- Unity 2019.4 or newer
-- Internet connection
-- That's it!
+- [Integration Guide](UNITY_INTEGRATION_GUIDE.md)
+- [Developer & Viewer Guide](DEVELOPER_VIEWER_GUIDE.md)  
+- [How It Works](HOW_IT_WORKS.md)
+- [Build AAR Instructions](BUILD_AAR_ANDROID_STUDIO.md)
 
-## 🆘 Troubleshooting
+## 💡 Support
 
-**Button not clicking?**
-- The script now auto-creates an EventSystem
-- If still not working: GameObject → UI → Event System
-- Make sure you're clicking in Game view, not Scene view
-
-**Can't see the button?**
-- Make sure you're in Game view
-- Check that the script is on an active GameObject
-
-**Stream not working?**
-- Check internet connection
-- Try refreshing the viewer page
-
-**Which option should I use?**
-- Option 1: For quick integration into your existing game
-- Option 2: To see streaming with actual game content
-
-## 📄 Which Script to Use?
-
-- **SubstreamBundled.cs** ⭐ - RECOMMENDED: Complete solution with JWT tokens
-- **SubstreamComplete.cs** - Basic UI demo
-- **SubstreamLiveKitCloud.cs** - LiveKit connection (needs token generation)
-- **WorkingStreamSolution.cs** - Screen share approach (works immediately)
-
-For production: Use `SubstreamBundled.cs` - it includes everything!
-
-## 📄 License
-
-MIT License - Use freely in your games!
+Issues? Questions? Create an issue on GitHub!
 
 ---
 
-**One file. Zero setup. Instant streaming.** 🚀
-
-[Download SubstreamComplete.cs](https://github.com/jlin3/substreamsdk/blob/main/SubstreamComplete.cs) and start streaming in 60 seconds!
+**Built with ❤️ for Unity developers who just want streaming to work.**
