@@ -1,0 +1,71 @@
+SUBSTREAM DEMO - THE SIMPLEST STEPS
+====================================
+
+YOU ALREADY HAVE EVERYTHING READY!
+The Quest AAR is built ✓
+The Unity scripts are ready ✓
+LiveKit Cloud is configured ✓
+
+FOR YOUR DEMO TOMORROW:
+----------------------
+
+OPTION A: The 10-Second Demo
+1. In Unity, add "SubstreamOneClick.cs" to any GameObject
+2. Press Play
+3. Click the big "GO LIVE" button
+4. Browser opens → Click "Share Screen" → Select Unity
+5. You're streaming!
+
+OPTION B: The Professional Demo
+1. In Unity, add "SubstreamSDK.cs" to any GameObject
+2. Streaming UI appears automatically
+3. Click "Go Live"
+4. Same screen share process
+5. Show the floating UI, minimizing, etc.
+
+OPTION C: The Interactive Demo
+1. Use "SubstreamUnityDemo.cs"
+2. It auto-detects platform
+3. Shows instructions
+4. Guides through the process
+
+WHAT TO SAY:
+-----------
+"This is how easy it is to add streaming to any Unity game.
+Watch - I'll do it in one line of code."
+[Add component]
+"That's it. Players can now stream their gameplay."
+[Click button, share screen]
+"And here's the live stream. Anyone can watch."
+
+IF THEY ASK ABOUT QUEST:
+-----------------------
+"On Quest it's even better - same one line of code,
+but it captures the VR view directly. The player 
+approves once and their VR gameplay streams automatically."
+
+WHAT YOU DON'T NEED TO DO:
+-------------------------
+- No copying files
+- No configuration  
+- No setup
+- No building for Quest (unless you want to show it)
+
+FILES YOU CAN USE:
+-----------------
+- SubstreamOneClick.cs (simplest - just one button)
+- SubstreamSDK.cs (professional - auto UI)
+- SubstreamUnityDemo.cs (full demo experience)
+- TestQuestAAR.cs (verify AAR is working)
+
+THE QUEST AAR:
+-------------
+Location: substream-release-quest.aar (47KB)
+Status: BUILT AND READY
+What it does: Enables native VR capture on Quest
+
+Remember: The screen share demo is PERFECT for tomorrow.
+It shows real streaming, real viewers, real everything.
+The Quest stuff is just a bonus if you have time.
+
+Good luck! You're going to do great! 🚀
