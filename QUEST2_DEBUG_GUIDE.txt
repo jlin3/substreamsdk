@@ -1,0 +1,68 @@
+QUEST 2 STREAMING DEBUG GUIDE
+=============================
+
+If MediaProjection permission isn't showing on Quest 2:
+
+1. CHECK LOGS
+   Connect Quest via USB and run:
+   adb logcat -s Unity:* SubstreamNative:* | grep -E "(Substream|Permission|startLive)"
+
+2. TEST PERMISSION MANUALLY
+   In Unity Inspector on DemoController:
+   - Right-click component header
+   - Select "Test Permission Request"
+   - Check Quest headset for dialog
+
+3. VERIFY AAR IS LOADED
+   Look for this in logs:
+   "SubstreamNative: init baseUrl=..."
+   If missing, AAR isn't loading
+
+4. COMMON ISSUES & FIXES:
+
+   A) "Activity not initialized"
+      - Add AndroidManifest.xml to Assets/Plugins/Android/
+      - Copy from quest/unity/AndroidManifest.xml
+
+   B) Permission dialog not visible
+      - Dialog might be behind Unity
+      - Try: Remove headset briefly when starting stream
+      - Check: Settings > Apps > YourApp > Permissions
+
+   C) Build errors after import
+      - Delete Library/ folder
+      - Reimport all assets
+      - Clear console
+      - Restart Unity
+
+5. NUCLEAR OPTION
+   Start completely fresh:
+   - New Unity project
+   - Import ONLY quest/unity/SubstreamSDK/ files
+   - Add AAR to Plugins/Android/
+   - Add AndroidManifest.xml
+   - Build and test
+
+6. ADB COMMANDS FOR QUEST 2
+   
+   # Install APK
+   adb install -r YourGame.apk
+   
+   # Watch logs
+   adb logcat -c  # Clear first
+   adb logcat -s Unity:* SubstreamNative:*
+   
+   # Force stop app
+   adb shell am force-stop com.yourcompany.yourgame
+   
+   # Check if permission was granted
+   adb shell dumpsys package com.yourcompany.yourgame | grep permission
+
+7. TEST WITHOUT UNITY
+   The AAR has test methods. In Unity:
+   - Create empty scene
+   - Add only DemoController
+   - Set BaseUrl = "demo"
+   - Build and test
+
+Report back with log output!

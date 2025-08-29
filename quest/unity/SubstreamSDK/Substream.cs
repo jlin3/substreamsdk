@@ -293,8 +293,14 @@ namespace SubstreamSDK
 #if UNITY_ANDROID && !UNITY_EDITOR
                 using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+                if (activity == null)
+                {
+                    Debug.LogError("[Substream] Failed to get Unity activity!");
+                    throw new System.Exception("Could not get Unity activity");
+                }
                 using var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative");
                 jc.CallStatic("init", activity, config.BaseUrl, config.WhipPublishUrl);
+                Debug.Log("[Substream] Native SDK initialized with Unity activity");
 #endif
             }
             

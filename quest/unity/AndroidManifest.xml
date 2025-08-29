@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <!-- Required permissions are already in the AAR, but adding them here for clarity -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
+    <application>
+        <!-- Unity's main activity - ensures proper configuration -->
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"
+                  android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Meta Quest specific settings -->
+        <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+    </application>
+    
+    <!-- Quest feature requirements -->
+    <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" android:version="1" />
+</manifest>

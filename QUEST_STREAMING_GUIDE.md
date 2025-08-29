@@ -32,6 +32,7 @@ cd quest/android
 1. **Copy to Unity:**
    - `substream-release.aar` → `Assets/Plugins/Android/`
    - `quest/unity/SubstreamSDK/` → `Assets/SubstreamSDK/`
+   - `quest/unity/AndroidManifest.xml` → `Assets/Plugins/Android/` (IMPORTANT!)
 
 2. **Configure Unity:**
    - File → Build Settings → Android
@@ -39,6 +40,7 @@ cd quest/android
      - Minimum API Level: 29
      - Target API Level: 34
      - Internet Access: Required
+     - Package Name: com.yourcompany.yourgame
 
 3. **Add to Scene:**
    ```
@@ -136,6 +138,32 @@ They'll see the full VR view as you play!
 - Stream analytics
 - Adaptive bitrate
 
-## The Missing Step
+## Troubleshooting
 
-The AAR file needs to be built. Once built, the Quest streaming is ready to use!
+### Permission Dialog Not Showing?
+
+1. **Check Logs:**
+   ```bash
+   adb logcat -s Unity:* SubstreamNative:*
+   ```
+
+2. **Verify AndroidManifest.xml:**
+   - MUST be in `Assets/Plugins/Android/`
+   - Use the provided template
+
+3. **Test Permission:**
+   - In Inspector: Right-click DemoController → Test Permission Request
+   - Check headset immediately
+
+4. **Common Fixes:**
+   - Clear app data: Settings → Apps → YourApp → Clear Data
+   - Reinstall APK fresh
+   - Check QUEST2_DEBUG_GUIDE.txt for detailed steps
+
+### Build Errors?
+
+- Delete `Library/` folder
+- Reimport all assets
+- Restart Unity
+
+The AAR is built and included in the repo!

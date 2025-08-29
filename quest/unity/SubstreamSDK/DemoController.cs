@@ -122,7 +122,9 @@ namespace SubstreamSDK
                 _live.OnError += OnError;
                 
                 // Start streaming
+                Debug.Log("[Substream Demo] About to call _live.Start()");
                 await _live.Start();
+                Debug.Log("[Substream Demo] _live.Start() completed successfully");
                 
                 _isStreaming = true;
                 UpdateStatus($"🔴 LIVE - {Width}x{Height}@{Fps}fps");
@@ -296,6 +298,29 @@ namespace SubstreamSDK
         public void EnableAudio()
         {
             WithAudio = true;
+        }
+        
+        [ContextMenu("Test Permission Request")]
+        public void TestPermissionRequest()
+        {
+            Debug.Log("[Substream Demo] Testing permission request...");
+            #if UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using (var jc = new AndroidJavaClass("com.substream.sdk.SubstreamNative"))
+                {
+                    Debug.Log("[Substream Demo] Calling native startLive for permission test");
+                    jc.CallStatic("startLive", 1920, 1080, 30, 5000, "{}", true);
+                    Debug.Log("[Substream Demo] Native call completed");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[Substream Demo] Permission test failed: {e}");
+            }
+            #else
+            Debug.Log("[Substream Demo] Permission test only works on Android device");
+            #endif
         }
     }
 }

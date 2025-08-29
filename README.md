@@ -48,7 +48,7 @@ Same scripts work on Quest! Just:
 - **TestQuestAAR.cs** - Verify Quest setup
 
 ### Optional:
-- **test-scene.unitypackage** - Demo scene with animated content
+- **test-scene.unitypackage** - Demo scene with animated content ⚠️ **See [TEST_SCENE_INSTRUCTIONS.md](TEST_SCENE_INSTRUCTIONS.md) first!**
 
 ## 🎯 For Developers
 
